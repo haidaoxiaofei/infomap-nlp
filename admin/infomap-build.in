@@ -1,0 +1,131 @@
+#! /bin/sh
+
+#
+# This is a wrapper around make.  It has two responsibilities:
+#    1. Locating the appropriate Makefile.
+#    2. Pass information to make by setting variables in its
+#      environment.
+#
+prefix=
+exec_prefix=
+
+#opath=$PATH
+#PATH=@bindir@:/bin:/usr/bin:/usr/local/bin
+
+MAKEFILE="@pkgdatadir@/Makefile.data"
+PARAM_FILE="@pkgdatadir@/default-params"
+
+CORPUS_FILE=""
+FNAMES_FILE=""
+CORPUS_DIR=""
+
+# Set default values
+COL_LABELS_FROM_FILE="0"
+COL_LABEL_FILE=""
+
+ME=`basename $0`
+case "$#" in
+  0)
+    echo
+    echo "Usage: $ME [-w working_dir] [-p param_file]"
+    echo "       [-D var_1=val_1 ... -D var_N=val_N]"
+    echo "       (-s single_corpus_file | -m multi_file_list)"
+    echo "       <model_tag>"
+    echo
+    exit 1
+  ;;
+esac
+
+EXTRA_PARAM_FILE=`mktemp /tmp/$ME.XXXXXX`
+MODEL_TAG=""
+
+# option stuff
+
+while test $# -gt 0; do
+  case "$1" in
+    -D)
+       shift
+       echo "$1" >>$EXTRA_PARAM_FILE 
+     ;;
+
+    -p)
+       shift
+       PARAM_FILE="$1"
+     ;;
+
+    -m)
+       shift
+       FNAMES_FILE="$1"
+       CORPUS_FILE=""
+       CORPUS_DIR=`dirname "$1"`
+     ;;
+
+    -s)
+       shift
+       CORPUS_FILE="$1"
+       FNAMES_FILE=""
+       CORPUS_DIR=`dirname "$1"`
+     ;;
+
+    -w)
+       shift
+       INFOMAP_WORKING_DIR="$1"
+     ;;
+
+     *)
+       MODEL_TAG="$1"
+     ;;
+  esac
+  shift
+done
+
+if test -z "$INFOMAP_WORKING_DIR"; then
+  INFOMAP_WORKING_DIR="/tmp/$USER/infomap_working_dir"
+fi
+
+echo "Sourcing param file \"$PARAM_FILE\""
+. $PARAM_FILE
+
+# Set vars from -D options.
+
+echo "Sourcing extra param file \"$EXTRA_PARAM_FILE\""
+echo "Contents are:"
+cat $EXTRA_PARAM_FILE
+. $EXTRA_PARAM_FILE
+
+echo "Removing extra param file"
+rm -f $EXTRA_PARAM_FILE
+
+WORKING_DATA_DIR=$INFOMAP_WORKING_DIR/$MODEL_TAG
+echo "WORKING_DATA_DIR = \"$WORKING_DATA_DIR\""
+
+echo "CORPUS_DIR = \"$CORPUS_DIR\""
+echo "CORPUS_FILE = \"$CORPUS_FILE\""
+echo "FNAMES_FILE = \"$FNAMES_FILE\""
+echo "ROWS = \"$ROWS\""
+echo "COLUMNS = \"$COLUMNS\""
+echo "SINGVALS = \"$SINGVALS\""
+echo "SVD_ITER = \"$SVD_ITER\""
+echo "PRE_CONTEXT_SIZE = \"$PRE_CONTEXT_SIZE\""
+echo "POST_CONTEXT_SIZE = \"$POST_CONTEXT_SIZE\""
+echo "WRITE_MATLAB_FORMAT = \"$WRITE_MATLAB_FORMAT\""
+echo "VALID_CHARS_FILE = \"$VALID_CHARS_FILE\""
+echo "STOPLIST_FILE = \"$STOPLIST_FILE\""
+echo "COL_LABELS_FROM_FILE = \"$COL_LABELS_FROM_FILE\""
+echo "COL_LABEL_FILE = \"$COL_LABEL_FILE\""
+
+export WORKING_DATA_DIR
+export CORPUS_DIR CORPUS_FILE FNAMES_FILE
+export ROWS COLUMNS SINGVALS SVD_ITER \
+       PRE_CONTEXT_SIZE POST_CONTEXT_SIZE \
+       WRITE_MATLAB_FORMAT \
+       VALID_CHARS_FILE \
+       STOPLIST_FILE \
+       REPORTS_FILE \
+       COL_LABELS_FROM_FILE COL_LABEL_FILE
+
+#PATH=$opath
+make -f "$MAKEFILE" data
+
+
+

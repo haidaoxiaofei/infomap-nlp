@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+<title>Infomap NLP Software -- Background for Tutorials</title>
+</head>
+
+<body>
+<h2>Background Information for Understanding Tutorials</h2>
+<p>A <i>corpus</i> is a collection of text that is used for research
+in natural language processing (NLP) or computational linguistics.  A
+corpus consists of one or more <i>documents</i>; how documents are
+defined (and how long each document tends to be) depends on the
+particular corpus.  In a corpus of news articles, for instance, it is
+likely that each article will be considered a document.</p>
+
+<p><i>Files</i> in a corpus are the actual computer files used to
+store the corpus on disk.  The correspondence between files and
+documents can vary.  In particular, one file may contain a single
+document, or it may contain multiple documents.  It is also possible
+that a file may contain a fragment of a document (with the rest of
+that document stored in other files), or fragments of multiple
+different documents, or some complete documents and fragments of other
+documents.</p>
+
+<p>The Infomap NLP software does not currently except corpora
+in these more complicated formats.  It accepts two types of corpora:
+<ol>
+<li>Corpora consisting of a single file, which contains one or more
+documents.  The documents are delimited within that file by XML-like
+<tt>&lt;DOC&gt;</tt> and <tt>&lt;/DOC&gt;</tt> tags.</li>
+<li>Corpora consisting of multiple files, in which each file consists
+of exactly one document.</li>
+</ol>
+</p>
+
+<p>It is still possible to work with corpora in other formats, by
+filtering these corpora with other software that accepts their formats
+as input and generates output in one of the two formats understood by
+the Infomap software.  Since the Infomap formats are very simple, it
+should in most cases be quite easy to write such filters.</p>
+
+<p>The purpose of this tutorial is to illustrate the Infomap corpus
+formats by example, and to walk you through the stages of converting a
+corpus into the Infomap format and using the Infomap NLP software to
+build models from the converted corpus.</p>
+
+
+</body>
+
+</html>

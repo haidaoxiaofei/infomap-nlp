@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<title>Infomap Software Corpus Input Formats</title>
+<head>
+
+
+<body>
+<h2>Corpus Input Formats for the Infomap Software</h2>
+<ul><li><a href="#single_file">Single-file corpora</a></li>
+    <li><a href="#multi_file">Multiple-file corpora</a></li>
+</ul>
+
+<p>The Infomap software is capable of processing corpora in two
+distinct input formats.  A <i>single-file corpus</i> consists of a
+single file that contains the entire corpus; the documents making up
+the corpus are delimited using XML-like begin-document and
+end-document tags.  A <i>multiple-file corpus</i> has one file per
+document.  These two corpus formats are described in more detail
+below.</p>
+
+
+<h3><a name="single_file"/>Single-file corpora</h3>
+<p>
+In a single-file corpus, the entire corpus (consisting of one or more
+documents) is containted by a single file on disk.  The beginning of
+each document is marked by a <tt>&lt;DOC&gt;</tt> tag; the end of
+each document by a <tt>&lt;/DOC&gt;</tt> tag.  Within each document,
+the beginning of the document's text (as opposed to header
+information like a title or document number) appears between a
+<tt>&lt;TEXT&gt;</tt> tag and a <tt>&lt;/TEXT&gt;</tt> tag.  Everying
+outside these text tags is ignored by the Infomap software.
+</p>
+
+<h3><a name="multi_file"/>Multiple-file corpora</h3>
+<p>
+In a multiple-file corpus, each disk file that is part of the corpus
+must contain exactly one document.  No tags are used; the entire
+contents of the file are considered to make up the text of the
+document and are processed by the Infomap software.
+</p>
+
+
+</body>
+</html>

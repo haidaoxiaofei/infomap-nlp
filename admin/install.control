@@ -1,0 +1,39 @@
+#Installation control file.
+#Lines beginning with "#" and blank lines are ignored
+
+#See infomap-install.control(5) for description
+#of the format of this file.
+
+wordlist:N
+dic:N    
+coll:N     
+indx:N     
+matlab:N     
+left:N     
+sing:N     
+rght:N
+svd_diag:N
+numDocs:N    
+wordvec.bin:Y
+word2offset.db:Y
+word2offset.dir:Y
+word2offset.pag:Y
+offset2word.db:Y 
+offset2word.dir:Y
+offset2word.pag:Y  
+number2name.db:Y
+number2name.dir:Y
+number2name.pag:Y
+artvec.bin:Y 
+art2offset.db:Y
+art2offset.dir:Y
+art2offset.pag:Y
+offset2art.db:Y 
+offset2art.dir:Y
+offset2art.pag:Y  
+model_params.bin:Y
+model_params.txt:Y
+model_info.bin:Y
+model_info.txt:Y
+corpus_format.bin:Y
+corpus_format.txt:Y

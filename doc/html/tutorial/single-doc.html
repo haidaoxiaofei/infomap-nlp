@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+<title>Infomap NLP Software -- Single Document Tutorial Example</title>
+</head>
+
+<body>
+<h2 align="center">Single Document Tutorial Example</h2>
+
+<p>Since the Infomap software is incapable of constructing documents
+from document fragments stored in multiple files (see the <a
+href="background.html">tutorial background information</a>), a
+single-document corpus must always consist of a single file.  For the
+Infomap software to produce meaningful results it needs a good deal of
+data, so the single document in our corpus will be a rather large
+document:  the King James Bible.  The King James Bible is freely
+available in electronic form from the <a
+href="http://www.gutenberg.net/">Gutenberg Project</a>; it is
+available as a single file from <a href="">here</a>.  (You can also
+download a copy from the Infomap server <a href="kjbible.txt">from here</a>.)
+</p>
+
+<p>Please download this file to your computer now.  On my computer,
+this file is stored as
+<tt>/home/cederber/corpora/kjbible/kjbible.txt</tt>, and that is how I
+will refer to it in the examples that follow.  Don't forget to
+substitute the name of the file on your system when you follow along
+with the examples.</p>
+
+<p>The first step in building a model from this corpus is to add
+appropriate annotations to the <tt>kjbible.txt</tt> file so that the
+Infomap software can process it.  In this example, where the entire
+corpus is to be treated as a single document, we need to add a total
+of four XML-like tags, as follows:
+<ol><li>A single <tt>&lt;DOC&gt;</tt> tag, at the very beginning of
+the file.  This tag marks the beginning of a document.</li>
+
+<li>A single <tt>&lt;TEXT&gt;</tt> tag, before the beginning of
+the text of the Bible itself, but after the header information
+appearing at the beginning of the file, which describes the Gutenberg
+Project and so forth.  This tag should be inserted between the line
+reading<pre>
+The First Book of Moses:  Called Genesis
+</pre>and the line reading<pre>
+1:1 In the beginning God created the heaven and the earth.
+</pre>
+The <tt>&lt;TEXT&gt;</tt> tag marks the beginning of the part of each
+document that is actually considered by the Infomap NLP software as it
+builds a model.  The text between the <tt>&lt;DOC&gt;</tt> tag
+and the <tt>&lt;TEXT&gt;</tt> tag can provide meta-information about
+the document, such as the document's title, but such information is
+not interpreted by the Infomap software.  
+This meta-information text may contain other XML-like tags (such as
+<tt>&lt;TITLE&gt;</tt>).
+</li>
+
+<li>A single <tt>&lt;/TEXT&gt;</tt> tag, coming after the text of the
+document and before the <tt>&lt;/DOC&gt;</tt> tag (below).  Any
+information between the <tt>&lt;/TEXT&gt</tt> and
+<tt>&lt;/DOC&gt;</tt> tags is ignored when building a model.  In this
+example, add the <tt>&lt;/TEXT&gt;</tt> tag to the very end of the file.
+</li>
+
+<li>A single <tt>&lt;/DOC&gt;</tt> tag.  Add this tag to the very end
+of the file, after the <tt>&lt;/TEXT&gt;</tt> tag that you added in
+step 3.</li>
+</ol></p>
+
+<p>With these tags in place, the corpus is in the proper format and is
+ready to be processed by the Infomap software.  Two steps remain:
+compiling the software and using it to process the corpus.</p>
+
+<p>To compile the software, simply type <tt>make</tt> in the
+top-level directory of the Infomap software distribution.  With a
+little luck, the compilation will run without errors.  If it fails,
+most likely you can get it to work with a few minor changes.  Please
+see <a href="../troubleshooting.html">this guide</a> for instructions.
+You can also <a href="../contact.html">contact us</a> for help.</p>
+
+<p>Once the software is compiled, you should make some changes to the
+<tt>Makefile</tt> to indicate the location of the corpus.  Changes the
+values of <tt>Makefile</tt> variables as follows:<pre>
+CORPUS_NAME = kjbible
+CORPUS_LONG_NAME = King James Bible
+CORPUS_DESCRIP = The King James Bible, from the Gutenberg Project
+
+CORPUS_FILE = /home/cederber/corpora/kjbible/kjbible.txt
+CORPUS_DIR = /home/cederber/corpora/kjbible/
+</pre>
+These changes tell the software where the corpus is, and give the
+corpus various descriptive names to be used for different
+purposes.  (Remember that the <tt>CORPUS_FILE</tt> and <tt>CORPUS_DIR</tt>
+variables should have values indicating where you saved the King James
+Bible file on your system; the values above are exampls taken from my
+system.)  
+</p>
+
+<p>When the software runs, it will produce a <i>model</i>, which will
+consist of a number of files stored in a single directory.  This model
+will be created in a working directory; it can later be installed to a
+more permanent location.  You should create two empty directories for
+these purposes, and change the <tt>Makefile</tt> variables
+<tt>WORKING_DATA_DIR</tt> and <tt>INSTALLED_DATA_DIR</tt> to the names
+of these directories.</p>
+
+<p>All of the other Makefile variables can be left as they are.  You
+are now ready to run the software; type <tt>make data</tt> to do
+so.</p>
+
+<p>This process will take a little while; if it fails, first look for
+obvious causes, such as a misspelled directory name.  If you get
+stuck, please <a href="../contact.html">contact us</a> and describe
+the problem.</p>
+
+<p>Once <tt>make data</tt> has completed, type <tt>make
+installdata</tt>.  When this is done, the model is installed and ready
+for use.</p>
+
+<h3>Using the Model</h3>
+
+<p>Now you can see the results!  Run the <tt>associate</tt> program in
+the <tt>search/</tt> subdirectory of the top-level <tt>infomap/</tt>
+directory.  You should see something like the following:<pre>
+
+No query terms specified.
+
+
+Usage:  `associate [-w | -d | -q] 
+                ( [-t toc_file] [-c model(corpus)_tag] | [-m model_dir] )
+                [-n num_neighbors] [-f vector_output_file]
+                <pos_term_1> [pos_term_2 ... pos_term_n]
+                [NOT neg_term_1 ... neg_term_n]'
+
+        Task:   -w      associate words (DEFAULT)
+                -d      associate documents
+                -q      print query vector
+
+        Models (default.toc):
+                kjbible (kjbible) (DEFAULT)
+
+</pre>
+Note that the bottom of this output indicates that the
+<tt>kjbible</tt> model has been installed.</p>
+
+<p>Try the command <tt>associate moses</tt>.  This will return the
+words in the King James Bible that are conceptually &quot;most
+similar&quot; to <tt>moses</tt> in this model.  You should see
+something like this:<pre>
+moses:1.000000
+aaron:0.605078
+congregation:0.432336
+sinai:0.424203
+commanded:0.406323
+edifieth:0.388591
+hazeroth:0.386311
+miriam:0.382260
+evident:0.368226
+...
+</pre>
+Play around with some other queries to get a sense for what has been
+learned.  Keep in mind that by NLP standards, the Bible is quite a
+small corpus, so results may be of inconsistent quality.</p>
+
+<p>To see how to annotate a corpus to contain multiple documents, and
+what can be done with such a corpus, continue to the <a
+href="single-file.html">single file example</a>.</p>
+
+</body>
+</html>

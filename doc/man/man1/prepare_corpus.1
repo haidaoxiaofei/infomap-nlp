@@ -1,0 +1,223 @@
+.\" Process this file with 
+.\"    groff -man -Tascii prepare_corpus.1
+
+.TH PREPARE_CORPUS 1 "FEBRUARY 2004" "Infomap Project" "Infomap NLP Manual"
+
+.SH NAME
+
+.TP
+prepare_corpus \- parse corpus for other Infomap NLP tools
+
+.SH SYNOPSIS
+.B prepare_corpus
+.BR -cdir " <corpus_dir> " -mdir " <model_data_dir> " \
+-cfile " <corpus_filename> " -fnfile " <file_name_filename> " \
+-slfile " <stoplist_filename> " -chfile " <valid_chars_filename> " -rptfile " <reports_filename> "
+
+.SH DESCRIPTION
+.B prepare_corpus
+parses a corpus and tabulates the term and document frequencies
+of the word types in that corpus.  It writes several output files
+used by other components of the Infomap NLP software package, most
+directly by 
+.BR count_wordvec .
+
+.SH OPTIONS
+Note that the options must 
+.I all
+be given, and that they must appear in the exact order shown in the
+above synopsis.  Empty options should be explicitly specified using ""
+on the command line.  This strict option syntax is used because 
+.B prepare_corpus
+should usually be called via a Makefile or a wrapper script, rather 
+than directly from the command line.
+
+.TP
+.BI -cdir \ <corpus_dir>
+The directory containing the corpus.  This directory should contain
+either the corpus file 
+.RB ( -cfile )
+or the filenames file
+.RB ( -fnfile ).
+
+.TP
+.BI -mdir \ <model_data_dir>
+The directory in which the output files will be written.
+
+.TP
+.BI -cfile \ <corpus_filename>
+The file containing the corpus, if this is a single file corpus.  If this 
+option is non-empty, then 
+.B -fnfile
+should be empty (i.e., specified as "").
+
+.TP
+.BI -fnfile \ <file_name_filename>
+A file containing a list of filenames, one filename per line, for 
+multi-file corpora.  The corpus consists of the contents of the files
+listed in this file, each of which must contain exactly one corpus document.
+If this option is non-empty, then
+.B -cfile
+should be empty (i.e., specified as "").
+
+.TP
+.BI -chfile \ <validchars_filename>
+The file contaning the valid word characters. These characters are the
+ones your words will eventually be composed of. All other characters
+are considered by the tokenization to be breaking and are skipped. The
+list of characters in the valid characters file are given as a
+continuous string without delimiters. 
+
+Watch out for newlines: if you have one at the end of this file, it
+will be considered as a legitimate part of words (may not be what you
+want). 
+
+Currently the tokenizer relies on the assumption that '<' is 
+.I not
+a valid word character. This makes sense given the xml-like tags that
+designate document and metadata boundaries.  
+
+Currently the tokenizer treats word-internal single quotes as
+non-breaking valid word characters even if they are included as valid.
+This enables words like 
+.I isn't 
+to be treated as words while still stripping quotes. Changing this behaviour
+is currently not possible.
+
+.TP
+.BI -slfile \ <stoplist_filename>
+The file contaning the stoplist (i.e., list of words to be ignored during
+subsequent processing).  The stoplist file should list stopwords one per
+line.  
+.B prepare_corpus
+will mark these words as stopwords in the "dictionary" file that it 
+outputs; this marking allows these words to be ignored by later processing.
+
+.B prepare_corpus
+will mark these words as stopwords in the "dictionary" file that it 
+outputs; this marking allows these words to be ignored by later processing.
+
+.TP
+.BI -rptfile \ <reports_filename>
+A file to write reports on the operation of prepare_corpus, if reporting
+is enabled.
+
+.SH INPUT FILES
+corpus file
+.RS
+The file containing the corpus.  Either this file (specified as an argument to 
+the
+.B -cfile
+option) or the filenames file must be given, but not both.  Within the 
+corpus file, documents are marked by simple XML-like <DOC> and </DOC>
+tags.
+.RE
+
+filenames file
+.RS
+A file containing a list of files making up the corpus.  Either this file
+(specified as an argument to the
+.B -fnfile
+option) or the corpus file must be given, but not both.  Each of the
+files listed in the filenames file must contain exactly one corpus
+document.  Note that all of these files also serve as input to
+.BR prepare_corpus .
+.RE
+
+.SH OUTPUT FILES
+All of these files are produced in the model data directory, specified
+as an argument to the
+.B -mdir
+option.
+
+.I wordlist
+.RS
+The parsed corpus.  This file is the original corpus, printed
+one token per line, with additional XML-tag-like tokens inserted
+to mark document boundaries.
+.RE
+
+.I dic
+.RS
+The "dictionary" file.  This file lists each of the words (types) encountered 
+in the corpus, one word per line, sorted in decreasing order of frequency.
+Each line lists the term frequency, the document frequency, a boolean 
+indication of whether the term is a stopword (1=stopword; 0=not a stopword),
+and the term (word) itself.  The fields are separated by spaces.
+.RE
+
+.I numDocs
+.RS
+This text file contains a single number, the number of documents
+making up the corpus.
+.RE
+
+.I number2name.{dir,pag}
+.RS
+These files form a DBM database.  Each key in this database
+is a document ID number, assigned as the corpus is processed.
+The corresponding value is the filename of the file consisting of the
+document with that ID.  This database is only generated for multiple-file
+corpora.
+.RE
+
+.I model_params.bin
+.RS
+This file contains essential parameters about an Infomap model in a
+binary format.  This file is read by the other preprocessing-side Infomap
+tools and by
+.BR associate (1).
+Less important corpus parameters are written to 
+.I model_info.bin
+to keep this file as small as possible.  
+This file is
+.I not
+very portable to other architectures.
+See 
+.BR write_text_params (1).
+.RE
+
+.I model_info.bin
+.RS
+This file contains corpus parameters in a binary format that is convenient
+for input to other tools.  
+See
+.BR write_text_params (1).
+.RE
+
+.I corpus_format.bin
+.RS
+This file contains information about the input format of the corpus,
+such as which tags were used to recognize the beginning and end of documents,
+and which XML/SGML character entities (like &amp;) have been stripped.
+The file is in a binary format that is convenient as input for other
+tools.  
+See
+.BR write_text_params (1).
+.RE
+
+
+.SH SEE ALSO
+.BR count_wordvec (1), \ svdinterface (1), \ encode_wordvec (1), \
+\ count_artvec (1), \ write_text_params (1), \ associate(1).
+
+.SH DIAGNOSTICS
+Returns 0 to indicate success; 1 to indicate error.
+
+.SH BUGS
+Option handling should be more flexible and should probably use library
+functions like 
+.BR getopt (3).
+Please report bugs to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+.SH CREDITS
+The Infomap NLP software was written by Stefan Kaufmann, Hinrich
+Schuetze, Dominic Widdows, Beate Dorow, and Scott Cederberg.  The
+Infomap algorithm was originally developed by Hinrich Schuetze.
+
+.SH AUTHOR
+This manual page was written by Scott Cederberg.  Please direct
+inquiries and bug reports to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+

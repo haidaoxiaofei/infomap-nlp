@@ -1,0 +1,57 @@
+las2.o: las2.c /usr/include/stdio.h /usr/include/sys/types.h \
+  /usr/include/sys/appleapiopts.h /usr/include/sys/cdefs.h \
+  /usr/include/machine/types.h /usr/include/ppc/types.h \
+  /usr/include/machine/ansi.h /usr/include/ppc/ansi.h \
+  /usr/include/machine/endian.h /usr/include/ppc/endian.h \
+  /usr/include/string.h /usr/include/ctype.h /usr/include/runetype.h \
+  /usr/include/math.h /usr/include/architecture/ppc/math.h \
+  /usr/include/sys/time.h /usr/include/time.h \
+  /usr/include/gcc/darwin/3.3/machine/limits.h /usr/include/ppc/limits.h \
+  fixed.h /usr/include/errno.h /usr/include/sys/errno.h \
+  ../../admin/filenames.h
+
+/usr/include/stdio.h:
+
+/usr/include/sys/types.h:
+
+/usr/include/sys/appleapiopts.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/machine/types.h:
+
+/usr/include/ppc/types.h:
+
+/usr/include/machine/ansi.h:
+
+/usr/include/ppc/ansi.h:
+
+/usr/include/machine/endian.h:
+
+/usr/include/ppc/endian.h:
+
+/usr/include/string.h:
+
+/usr/include/ctype.h:
+
+/usr/include/runetype.h:
+
+/usr/include/math.h:
+
+/usr/include/architecture/ppc/math.h:
+
+/usr/include/sys/time.h:
+
+/usr/include/time.h:
+
+/usr/include/gcc/darwin/3.3/machine/limits.h:
+
+/usr/include/ppc/limits.h:
+
+fixed.h:
+
+/usr/include/errno.h:
+
+/usr/include/sys/errno.h:
+
+../../admin/filenames.h:

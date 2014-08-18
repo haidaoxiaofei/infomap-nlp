@@ -1,0 +1,258 @@
+.\" Process this file with 
+.\"    groff -man -Tascii count_wordvec.1
+
+.TH COUNT_WORDVEC 1 "February 2004" "Infomap Project" "Infomap NLP Manual"
+
+.SH NAME
+.TP 
+count_wordvec \- compute word co-occurrence counts
+
+.SH SYNOPSIS
+.B count_wordvec
+.BR -mdir " <model_data_dir> " -matlab " <0|1> " \
+-precontext " <pre_context_size> " -postcontext " <post_context_size> " \
+-rows " <num_rows> " -columns " <num_columns> " \
+-col_labels_from_file " <0|1> " \
+-col_label_file " <file_containing_col_labels> "
+
+.SH DESCRIPTION
+.B count_wordvec
+reads a parsed corpus (in the format produced by 
+.BR prepare_corpus )
+and produces a matrix of co-occurrence counts.  This matrix
+has the dimension specified by 
+.BR -rows \ and \ -columns .
+The count in element 
+.B E_i,j
+is the number of times the word corresponding to row
+.B i
+occurred within the <pre_context_size> 
+words immediately before an occurrence of the word 
+corresponding to column
+.BR j,
+or within the <post_context_size>
+words immediately after an occurence of word
+.BR j.
+
+.SH OPTIONS
+Note that the options must 
+.I all
+be given, and that they must appear in the exact order shown in the
+above synopsis.  This strict option syntax is used because 
+.B count_wordvec
+should usually be called via a Makefile or a wrapper script, rather 
+than directly from the command line.
+.TP
+.BI -mdir \ <model_data_dir>
+.B count_wordvec
+will read its input from and write its output to the
+model data directory specified using this option.
+
+.TP
+.BI -matlab \ <1|0>
+.B count_wordvec
+writes its matrix of co-occurence counts in a two-file,
+column-major format suitable for input to
+.B svdinterface
+(which is a wrapper around functions from the University
+of Tennessee's SVDPACKC library).
+If the argument to this option is 1, output will also
+be written in a format suitable for input to MATLAB.  
+If the argument to this option is 0, no such output
+will be written.
+
+.TP
+.BI -precontext \ <pre_context_size>
+.B count_wordvec
+works by considering each word in a corpus in sequence.  For
+each such word 
+.BR w ,
+all words occurring in a "context window" surrounding 
+.B w
+are considered to have co-occurred with 
+.BR w .
+This option specifies how many words occurring immediately
+.IB before \ w
+should be considered to be in its context window.  Note
+that context windows can be cut short by document boundaries.
+
+.TP
+.BI -postcontext \ <post_context_size>
+.B count_wordvec
+works by considering each word in a corpus in sequence.  For
+each such word
+.BR w ,
+all words occurring in a "context window" surrounding
+.B w
+are considered to have co-occurred with
+.BR w .
+This option specifies how many words occurring immediately
+.IB after \ w
+should be considered to be in its context window.  Note
+that context windows can be cut short by document boundaries.
+
+.TP
+.BI -rows \ <num_rows>
+This option determines how many rows are maintained in 
+.BR count_wordvec 's
+matrix of co-occurrence counts.  In other words, it determines
+how many words 
+.B count_wordvec
+maintains co-occurrence counts for.  The most frequent 
+<num_rows> words in the corpus (neglecting stopwords) will have
+their co-occurrence counts recorded.
+
+.TP 
+.BI -columns \ <num_columns>
+This option determines how many columns are maintained in
+.BR count_wordvec 's
+matrix of co-occurrence counts.  Each column of the co-occurrence
+matrix corresponds to a word, as does each row.  Row 
+.B i
+is a "feature vector" for some word 
+.BR w_i .
+Thus, while 
+.B -rows
+specifies how many words we are learning feature vectors for,
+.B -columns
+specifies how many features each of these vectors contains.
+The words corresponding to these features (the "column labels")
+are intended to be "content-bearing words"; that is, they should be
+words that provide information about the meaning of other words occurring
+in their context.  The selection of content-bearing words for
+use as column labels is an important part of the Infomap algorithm;
+currently the words ranking 50-1049 in frequency (neglecting stopwords) 
+are chosen.
+
+.TP
+.BI -col_labels_from_file \ <0|1>
+If  equal  to  1, this  Boolean variable indicates that the column labels 
+of the matrix of co-occurrence counts should be read from the file specified 
+via option 
+.B -col_label_file.
+If set to 0, 
+.B count_wordvec 
+will  choose  column labels automatically. Default is 0.
+
+.TP
+.BI -col_label_file \ <file_containing_col_labels>
+This option specifies the name of the file containing a set of user-specified
+content-bearing words which 
+.B count_wordvec 
+will use as column labels of the matrix of co-occurrence counts. Default is "".
+
+
+.\" .SH EXAMPLES
+
+.SH INPUT FILES
+These files are read from the model data directory, specified as
+an argument to the
+.B -mdir
+option.
+.I  dic
+.RS
+The dictionary file.  See 
+.BR prepare_corpus (1).
+.RE
+
+.I numFiles
+.RS
+The number of documents in the corpus.
+See 
+.BR prepare_corpus (1).
+.RE
+
+.I wordlist
+.RS
+The parsed corpus, with indications of document breaks.
+See 
+.BR prepare_corpus (1).
+.RE
+
+.I model_params.bin
+.RS
+Reads in this file and writes out a modified version.
+See 
+.BR prepare_corpus (1).
+.RE
+
+.I model_info.bin
+.RS
+Reads in this file and writes out a modified version.
+See
+.BR prepare_corpus (1).
+.RE
+
+.SH OUTPUT FILES
+All of these files are written to the model data directory, specified
+as an argument to the
+.B -mdir
+option.
+.I coll
+.RS
+This file and the 
+.I indx
+file, together, serve as matrix input to 
+.BR svdinterface (1).
+.RE
+
+.I indx
+.RS
+This file and the 
+.I coll
+file, together, serve as matrix input to
+.BR svdinterface (1).
+.RE
+
+.I matlab
+.RS
+This file, which is only generated if the
+.B -matlab
+option is given an argument of "1", contains
+the co-occurrence matrix in a format suitable for
+input to MATLAB.
+.RE
+
+.I model_params.bin
+.RS
+Reads in this file and writes out a modified version.
+See 
+.BR prepare_corpus (1).
+.RE
+
+.I model_info.bin
+.RS
+Reads in this file and writes out a modified version.
+See
+.BR prepare_corpus (1).
+.RE
+
+
+.SH SEE ALSO
+.BR prepare_corpus (1), \ svdinterface (1), \ encode_wordvec (1), \
+\ count_artvec (1), \ write_text_params(1).
+
+.SH DIAGNOSTICS
+Returns 0 to indicate success; a nonzero value to indicate error.
+
+.SH BUGS
+Should probably have more flexible option-handling, perhaps using
+.BR getopt (3)
+or something similar.  This page should have more detailed documentation
+of the
+.IR coll ", " indx ", and " matlab
+file formats.
+Please report bugs to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+.SH CREDITS
+The Infomap NLP software was written by Stefan Kaufmann, Hinrich
+Schuetze, Dominic Widdows, Beate Dorow, and Scott Cederberg.  The
+Infomap algorithm was originally developed by Hinrich Schuetze.
+
+.SH AUTHOR
+This manual page was written by Scott Cederberg.  Please direct
+inquiries and bug reports to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+

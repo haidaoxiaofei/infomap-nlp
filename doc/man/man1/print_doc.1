@@ -1,0 +1,130 @@
+.\" Process this file with 
+.\"    groff -man -Tascii print_doc.1.
+
+.TH PRINT_DOC 1 "February 2004" "Infomap Project" "Infomap NLP Manual"
+
+.SH NAME
+.TP 
+print_doc \- print a corpus document given its ID
+
+.SH SYNOPSIS
+.B print_doc
+(
+.RB [ -t ]
+| 
+.RB [ -m 
+.IR model_dir ]
+)
+.BI -c \ model_tag
+.RI < doc_id_1 > 
+.RI " [" doc_id_2 " ... " doc_id_n ] 
+
+.SH DESCRIPTION
+.B print_doc
+retrieves the documents whose document ID's (in case of a single file corpus) or document names (in case of a multi-file corpus) are given on the command line, and prints them to standard output.
+
+
+.SH OPTIONS
+.TP
+.BI -c \ model_tag
+Use the model specified by the model tag
+.IR model_tag ; 
+this is the name of the model data directory.  For information
+on how this directory is located, see the
+.B FINDING THE MODEL
+section of the
+.BR associate (1)
+manpage.
+
+.TP 
+.BI -m \ model_dir
+Use the model stored in 
+.I model_dir 
+for this search; when this option
+is used the model tag given as an argument to the
+.B -c 
+option must name a subdirectory of 
+.IR model_dir .  
+If this option is specified the 
+.B INFOMAP_MODEL_PATH
+environment variable and the
+.B -t
+option are ignored.
+
+.TP 
+.BI -t 
+Look for the model data directory in the directory
+specified by the
+.B INFOMAP_WORKING_DIR
+environment variable; ignore the
+.B INFOMAP_MODEL_PATH
+environment variable.  Note that this option will
+be ignored if the
+.B -m
+option is also specified.
+
+
+.\" .SH EXAMPLES
+
+.SH FILES
+The directory containing these files is located using the command-line
+options, as described above.
+
+
+.I model_params.bin
+.RS
+Parameters describing the model from which we are retrieving
+documents.  See
+.BR prepare_corpus (1).
+.RE
+
+.I corpus_format.bin
+.RS
+Parameters describing the format of the corpus, some of which
+are necessary to retrieve documents.  See
+.BR prepare_corpus (1).
+.RE
+
+
+.SH ENVIRONMENT VARIABLES
+.B INFOMAP_MODEL_PATH
+.RS
+Path to search for Infomap model directories.  Will be
+ignored if 
+.B -m
+or 
+.B -t
+is specified.
+.RE
+
+.B INFOMAP_WORKING_DIR
+.RS
+Directory in which to find Infomap model directory, if the
+.B -t
+command-line option is given.
+.RE
+
+.SH SEE ALSO
+.BR associate (1), \ prepare_corpus (1), \ count_wordvec (1), \
+\ svdinterface (1), \ encode_wordvec (1), \ count_artvec (1), \
+\ write_text_params (1).
+
+.SH DIAGNOSTICS
+Returns 0 to indicate success; nonzero value to indicate error.
+
+.SH BUGS
+Please report bugs to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+.SH CREDITS
+The Infomap NLP software was written by Stefan Kaufmann, Hinrich
+Schuetze, Dominic Widdows, Beate Dorow, and Scott Cederberg.  The
+Infomap algorithm was originally developed by Hinrich Schuetze.
+
+.SH AUTHOR
+This manual page was written by Scott Cederberg.  Please direct
+inquiries and bug reports to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+
+

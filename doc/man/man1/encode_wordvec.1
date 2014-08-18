@@ -1,0 +1,117 @@
+.\" Process this file with 
+.\"    groff -man -Tascii encode_wordvec.1
+
+.TH ENCODE_WORDVEC 1 "February 2004" "Infomap Project" "Infomap NLP Manual"
+
+.SH NAME
+.TP 
+encode_wordvec \- compress word vectors from textual to binary format
+
+.SH SYNOPSIS
+.B encode_wordvec
+.BR -m <model_data_dir>
+
+.SH DESCRIPTION
+.B encode_wordvec
+reads in the word vectors written to the 
+.I left
+file by
+.BR svdinterface .
+It converts this textual input to a binary format that is more
+efficient for lookup.  It generates associated DBM files that index
+the binary-format word vectors.
+
+.SH OPTIONS
+.TP
+.BI -m \ <model_data_dir>
+The directory from which input is read and to which output is written.
+
+.\" .SH EXAMPLES
+
+.SH INPUT FILES
+These files are read from the model data directory, specified as
+an argument to the
+.B -mdir
+option.
+
+.I left
+.RS
+The word vectors (left singular vectors from SVD) in a textual
+format.  See
+.BR svdinterface (1).
+.RE
+
+.I dic
+.RS
+The dictionary file listing the different terms (word types) found
+in the corpus, and the term and document frequency for each.
+See
+.BR prepare_corpus (1).
+.RE
+
+.I model_params.bin
+.RS
+Reads this file to obtain parameters for the model being built.
+See 
+.BR prepare_corpus (1).
+.RE
+
+
+.SH OUTPUT FILES
+These files are written to the model data directory, specified as
+an argument to the
+.B -mdir
+option.
+
+.I wordvec.bin
+.RS
+The binary wordvectors.  
+These are really the meat of the model.
+Please note that this file is
+.I not
+portable to other machine architectures.
+.RE
+
+.I word2offset.{dir,pag}
+.RS
+These files make up a DBM database.  Each key in this database is
+a word; the corresponding value is the offset into 
+.I wordvec.bin
+at which that word's vector begins.  Thus this database and 
+.I wordvec.bin
+can be used to obtain a word's vector given the word.
+.RE
+
+.I offset2word.{dir,pag}
+.RS
+These files make up a DBM database.  Each key in this database
+is an offset into the 
+.I wordvec.bin
+file at which a word vector begins; the corresponding value is
+the word whose vector begins at that offset.
+Thus this database and 
+.I wordvec.bin
+can be used to obtain a word given its vector.
+.RE
+
+
+.SH SEE ALSO
+.BR prepare_corpus (1), \ count_wordvec (1), \ svdinterface (1), \
+\ count_artvec (1), \ write_text_params(1).
+
+.SH DIAGNOSTICS
+Returns 0 to indicate success, 1 to indicate error.
+
+.SH BUGS
+Please report bugs to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+.SH CREDITS
+The Infomap NLP software was written by Stefan Kaufmann, Hinrich
+Schuetze, Dominic Widdows, Beate Dorow, and Scott Cederberg.  The
+Infomap algorithm was originally developed by Hinrich Schuetze.
+
+.SH AUTHOR
+This manual page was written by Scott Cederberg.  Please direct
+inquiries and bug reports to 
+.BR infomap-nlp-users@lists.sourceforge.net .

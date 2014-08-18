@@ -1,0 +1,355 @@
+.\" Process this file with 
+.\"    groff -man -Tascii infomap-build.1
+
+.TH INFOMAP-BUILD 1 "February 2004" "Infomap Project" "Infomap NLP Manual"
+
+.SH NAME
+.TP 
+infomap-build \- build an Infomap WordSpace model
+
+.SH SYNOPSIS
+.B infomap-build
+.RB [ "-w " working_dir] 
+.RB [ "-p " param_file]
+.RB [ "-D " "var_1=val_1 ... " "-D " "var_N=val_N]"
+.RB ( "-s " "single_corpus_file | " "-m " multi_file_list)
+<model_tag>
+
+.B infomap-build 
+.BR -s \ <single_corpus_file> 
+<model_tag>
+
+.B infomap-build
+.BR -m \ <file_list_file> 
+<model_tag>
+
+
+.SH DESCRIPTION
+.B infomap-build
+builds an Infomap WordSpace model from a properly formatted input
+corpus.  It is the main driver program of the Infomap NLP software.
+
+.B infomap-build
+is a wrapper around
+.BR make (1),
+which in turn builds a model by invoking various other Infomap NLP
+tools.
+
+In its simplest form, shown in the last two lines in the above
+synopsis, 
+.B infomap-build
+is passed a corpus and a model tag.  The corpus is either a single
+file (specified as an argument to the
+.B -s
+option), or is stored in multiple files, one file per corpus document.
+For multi-file corpora, a file listing the names of all the files making up
+the corpus is given as an argument to the
+.B -m
+option.  
+
+The model tag will be used to refer to the resulting model.
+.B infomap-build 
+creates a directory whose name is the model tag.  The files generated
+during model building will be generated in this directory, which is 
+a subdirectory of the default working directory.  The default working
+directory is the value of the 
+.B INFOMAP_WORKING_DIR
+environment variable if it is set; otherwise it is
+.I /tmp/$USERNAME/infomap_working_dir.
+
+
+.SH OPTIONS
+.TP
+.BI -D \ var=val
+This option defines a variable whose value will be passed through
+to 
+.BR make .
+It can be used to set parameters that control the building of the
+model, such as the size of word vectors.  Values set using
+.B -D
+override both the defaults (from 
+.IR @pkgdatadir@/default-params ) 
+and the values specified using
+.BR -p ,
+if any.
+
+Useful variables that can be set using -D are described
+in the
+.B MODEL PARAMETERS
+section below.
+
+.TP
+.BI -m \ file_list_file
+For multi-file corpora (hence the "m"), a file listing all of the
+files that make up the corpus, one per line.  Each file must consist
+of exactly one corpus document.  This option and the
+.B -s
+option are mutually exclusive.
+
+.TP
+.BI -p \ param_file
+A file containing parameters to control the building of the model.  
+These parameters should be specified in variable=value format, one per line.
+The values in this file override the defaults given in
+.IR @pkgdatadir@/default-params .
+Values passed to
+.B -D 
+override the values in this file.
+See the 
+.B MODEL PARAMETERS
+section below.
+
+
+.TP
+.BI -s \ single_corpus_file
+For single-file corpora (hence the "s"), the file containing the
+corpus.  Within this file, documents should be marked by <DOC> and
+</DOC> tags; within each document, the text that is actually to be
+processed should be within a <TEXT> tag and a </TEXT> tag.  This
+option and the
+.B -m option are mutually exclusive.
+
+.TP
+.BI -w \ working_dir
+The working directory in which to build the model.  Model files will
+be written to a directory named
+.I model_tag
+that is a subdirectory of this directory.  This option overrides both
+the 
+.B INFOMAP_WORKING_DIR
+environment variable and the system default
+.RI ( /tmp/$USERNAME/infomap_working_dir )
+
+.SH MODEL PARAMETERS
+The following parameters control the building of models.  These parameters
+can be specified by listing them in a file in 
+.B VAR=VALUE
+form and passing that file as an argument to the
+.B -p
+option.  They can also be specified on the command line using the
+.B -D
+option.  Values given on the command line override those given in
+a file.
+
+While default values for these parameters are listed below for
+convenience, the true defaults are obtained from the file
+.I $pkgdatadir/default-params
+at runtime, and should be trusted over the values given here
+in case of conflict.
+
+.B ROWS
+.RS
+The number of words for which to learn word vectors.  Called
+.B ROWS
+because it is the number of rows in the matrix of co-occurrence counts
+produced by
+.BR count_wordvec (1).  
+Default is 20,000.
+.RE
+
+.B COLUMNS
+.RS
+The number of content-bearing words to use as features in the process
+of computing word vectors.  Called
+.B COLUMNS
+because it is the number of columns in the matrix of co-occurrence
+counts produced by
+.BR count_wordvec (1).
+Each word vector is reduced from 
+.B COLUMNS
+dimensions to 
+.B SINGVALS
+dimensions by
+.BR svdinterface (1).
+Default is 1000.
+.RE
+
+.B SINGVALS
+.RS
+The number of dimensions that the word vectors ultimately produced
+will have.  Called
+.B SINGVALS
+because the original co-occurrence vectors are reduced to this many
+elements by Singular Value Decomposition (SVD) (see
+.BR svdinterface (1)).
+Default is 100.
+.RE
+
+.B SVD_ITER
+.RS
+The number of iterations to be used by the SVD algorithm. Default is
+100.  See 
+.BR svdinterface (1).
+.RE
+
+.B PRE_CONTEXT_SIZE
+.RS
+This parameter and 
+.B POST_CONTEXT_SIZE
+control the size of the context window used by
+.BR count_wordvec (1)
+in computing its co-occurrence counts.
+Any word occurring in the 
+.B PRE_CONTEXT_SIZE 
+words immediately preceeding a target word
+.B w
+will be considered to have appeared in the context of
+that occurrence of 
+.BR w .
+(Note that context windows can also be truncated by
+document boundaries.)
+Default is 15.
+.RE
+
+.B POST_CONTEXT_SIZE
+.RS
+This parameter and
+.B PRE_CONTEXT_SIZE
+control the size of the context window used by
+.BR count_wordvec (1)
+in computing its co-occurrence counts.
+Any word occurring in the
+.B POST_CONTEXT_SIZE
+words immediately following a target word
+.B w
+will be considered to have appeared in the context of
+that occurrence of 
+.BR w .
+(Note that context windows can also be truncated by document
+boundaries.)
+Default is 15.
+.RE
+
+.B WRITE_MATLAB_FORMAT
+.RS
+This parameter is a binary flag.  If it is set to 1, 
+.BR count_wordvec (1)
+will write the co-occurrence matrix in MATLAB's input format,
+as well as in the format used by
+.BR svdinterface (1).
+If it is set to 0, no such additional output will be
+written.
+Default is 0.
+.RE
+
+.B VALID_CHARS_FILE
+.RS
+The valid characters file contains the valid word characters. These
+characters are the ones your words will eventually be composed of. All
+other characters are considered by the tokenization to be breaking and
+are skipped. The list of characters in the valid characters file are
+given as a continuous string without delimiters.
+
+The default valid characters file is 
+.B $pkgdatadir/valid_chars.en
+, which is for the English language and specifies [a-z][A-Z], '_' and
+'~' as valid word characters. If you want to use infomap for languages
+using a different character sets (say ISO-8859-2 for Central European)
+or wish to use other breaking characters, you have to prepare your own
+valid chars file.
+
+Watch out for newlines: if you have one at the end of this file, 
+it will be considered as a legitimate part of words (may not be what you want).
+ 
+See 
+.B prepare_corpus (1) 
+for more on the hard-wired features of the 
+tokenization method.
+.RE
+
+.B STOPLIST_FILE
+.RS
+The stoplist file should contain a list of words, one word
+per line, that are to be treated as stopwords and ignored during
+processing (i.e., they will not be selected as content-bearing words,
+and word vectors will not be computed for them).  The default
+is $pkgdatadir/stop.list, which is a reasonable choice for the English 
+language. If you want to use infomap for languages other than English, you
+have to prepare your own list of stopwords or at least prevent the English list
+from operating by specifying an empty stoplist file.
+.RE
+
+.B COL_LABELS_FROM_FILE
+.RS
+If equal to 1, this Boolean variable indicates that the column labels 
+of the word-word co-occurrence matrix should be read from the file 
+.B COL_LABEL_FILE.
+If set to 0, 
+.BR count_wordvec (1)
+will choose column labels automatically.
+Default is 0.
+.RE
+
+.B COL_LABEL_FILE
+.RS
+If
+.B COL_LABELS_FROM_FILE
+equals 1,
+then this is the name of the file containing a set of user-specified 
+content-bearing words which 
+.BR count_wordvec (1) 
+will use as column labels of the co-occurrence matrix.
+.RE
+
+.\" .SH EXAMPLES
+
+.SH FILES
+.I @pkgdatadir@/Makefile.data
+.RS
+Describes dependencies between generated model files.
+.B infomap-build
+invokes
+.BR make (1)
+with this as the Makefile.
+.RE
+
+.I @pkgdatadir@/default-params
+.RS
+This file contains default values for model-building parameters, such
+as the size of word vectors, the number of words for which to learn
+vectors,
+and the number of content-bearing words.
+These values can be overridden by specifying a different parameter file
+using the
+.B -p
+option and/or by setting individual parameters using
+.BR -D .
+
+.RE
+
+.SH ENVIRONMENT VARIABLES
+.B INFOMAP_WORKING_DIR
+.RS
+The working directory in which to build the model; model files
+will be created in a subdirectory named
+.I model_tag
+in this directory, which will be created if necessary.
+
+This variable overrides the systemwide default
+(/tmp/$USERNAME/infomap_working_dir), and can be overridden by the
+.B -w
+option.
+.RE
+
+.SH SEE ALSO
+.BR associate (1), \ infomap_build (1), \ prepare_corpus (1), \ count_wordvec (1), \ svdinterface (1), \ encode_wordvec (1), \ count_artvec (1), \ write_text_params (1).
+
+.SH DIAGNOSTICS
+Returns 0 to indicate success; nonzero value to indicate error.
+
+.SH BUGS
+Please report bugs to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+.SH CREDITS
+The Infomap NLP software was written by Stefan Kaufmann, Hinrich
+Schuetze, Dominic Widdows, Beate Dorow, and Scott Cederberg.  The
+Infomap algorithm was originally developed by Hinrich Schuetze.
+The
+.B infomap-build
+script was written by Scott Cederberg.
+
+.SH AUTHOR
+This manual page was written by Scott Cederberg.  Please direct
+inquiries and bug reports to 
+.BR infomap-nlp-users@lists.sourceforge.net .

@@ -1,0 +1,216 @@
+# Copyright (c) 2004, Stanford University
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+# 
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+# 
+#     * Redistributions in binary form must reproduce the above
+#       copyright notice, this list of conditions and the following
+#       disclaimer in the documentation and/or other materials provided
+#       with the distribution.
+# 
+#     * Neither the name of Stanford University nor the names of its
+#       contributors may be used to endorse or promote products derived
+#       from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+#
+# This version produced by Scott Cederberg by extensive modification
+# of earlier version originally written by Stefan Kaufmann, and
+# altered in the interim by Dominic Widdows and Beate Dorow, and
+# possibly others.
+#
+#
+
+# Outdated targets found in these directories will be
+# rebuilt in the directory in which they were found.
+# See GNU Makefile manual section 4.3.3 
+# ("How Directory Searches are Performed")
+GPATH = $(WORKING_DATA_DIR)
+
+#####################################################################
+
+define start_message
+@echo
+@echo ==================================================
+@echo Building target: $@
+@echo Prerequisites: $^
+@echo `date`
+@echo ..................................................
+endef
+
+define end_message
+@echo ..................................................
+@echo Finishing target: $@
+@echo ==================================================
+@echo 
+endef
+
+prefix=
+include @pkgdatadir@/Makefile.filenames
+
+##################################################
+# Say 'make data' to create both software and data.
+data:		datadir wordvectors artvectors textparams
+
+datadir:
+	echo "Making datadir"
+	mkdir -p $(WORKING_DATA_DIR)
+
+installdata:    data
+	@if [ -s $(INSTALLED_DATA_DIR) ]; then \
+	  echo; \
+	  echo "Cannot install to $(INSTALLED_DATA_DIR): directory already exists."; \
+	  echo "Please move or delete this directory, or change the "; \
+	  echo "INSTALLED_DATA_DIR Makefile variable."; \
+	  echo; \
+	else \
+	  mkdir -p $(INSTALLED_DATA_DIR) && \
+	  cat install.control | grep -v '^#' | \
+	      cpp -include $(FILENAME_HEADER) | \
+	      ./install_model.pl $(WORKING_DATA_DIR) $(INSTALLED_DATA_DIR) && \
+	  chmod 0444 $(INSTALLED_DATA_DIR)/* && \
+	  chmod 0555 $(INSTALLED_DATA_DIR) && \
+	  $(SEARCH_DIR)/append_to_toc "$(SEARCH_DIR)/$(DEFAULT_TOC)"	\
+		"$(CORPUS_NAME)" "$(CORPUS_LONG_NAME)"			\
+		"$(INSTALLED_DATA_DIR)" "$(CORPUS_DESCRIP)";            \
+	fi
+
+
+##################################################
+# Use these to create single files
+wordlist	: $(WORKING_DATA_DIR)/$(WORDLIST_FILE)
+dictionary	: $(WORKING_DATA_DIR)/$(DIC_FILE)
+wordvectors	: $(WORKING_DATA_DIR)/$(WORDVECBIN_FILE)
+artvectors	: $(WORKING_DATA_DIR)/$(ARTVECBIN_FILE)
+textparams      : $(WORKING_DATA_DIR)/$(MODEL_PARAMS_TEXT_FILE) \
+		  $(WORKING_DATA_DIR)/$(MODEL_INFO_TEXT_FILE) \
+		  $(WORKING_DATA_DIR)/$(CORPUS_FORMAT_TEXT_FILE)
+
+.PHONY : data installdata wordlist dictionary \
+	 wordvectors artvectors datadir
+
+##################################################
+# Data files (corpus information, vectors etc.)
+
+# wordlist and dictionary
+# XXX does this work for multi-file corpora?
+$(WORKING_DATA_DIR)/$(WORDLIST_FILE) \
+$(WORKING_DATA_DIR)/$(DIC_FILE) \
+$(WORKING_DATA_DIR)/$(FNUM_FILE) : $(CORPUS_FILE) $(FNAMES_FILE)
+	$(start_message)
+	prepare_corpus \
+		-cdir "$(CORPUS_DIR)" \
+		-mdir "$(WORKING_DATA_DIR)" \
+		-cfile "$(CORPUS_FILE)" \
+		-fnfile "$(FNAMES_FILE)" \
+		-chfile "$(VALID_CHARS_FILE)" \
+		-slfile "$(STOPLIST_FILE)" \
+		-rptfile "$(REPORTS_FILE)" 
+	$(end_message)
+
+
+# Word-word co-occurrence matrix in format that can be used
+# by SVD software.
+$(WORKING_DATA_DIR)/$(COLL_FILE) \
+$(WORKING_DATA_DIR)/$(INDEX_FILE) : $(WORKING_DATA_DIR)/$(WORDLIST_FILE) \
+				    $(WORKING_DATA_DIR)/$(DIC_FILE) \
+				    $(WORKING_DATA_DIR)/$(FNUM_FILE)
+	$(start_message)
+	count_wordvec \
+		-mdir $(WORKING_DATA_DIR) \
+		-matlab $(WRITE_MATLAB_FORMAT) \
+		-precontext $(PRE_CONTEXT_SIZE) \
+		-postcontext $(POST_CONTEXT_SIZE) \
+		-rows $(ROWS) \
+		-columns $(COLUMNS) \
+		-col_labels_from_file $(COL_LABELS_FROM_FILE) \
+		-col_label_file "$(COL_LABEL_FILE)"
+	$(end_message)
+
+# Explicit generation of co-occurrence matrix in Matlab format.  This
+# is an inefficient way to generate a Matlab file after the fact--it
+# would be better to read in the $(COLL_FILE) and $(INDEX_FILE) and do
+# conversion; but this is not implemented.  The prerequisites and
+# program invoked are the same as for the rule for $(COLL_FILE) and
+# $(INDEX_FILE) (above), but we have a separate rule so that we can
+# explicitly request Matlab file generation, rather than using
+# $(WRITE_MATLAB_FORMAT).  It would be preverse to do a successful
+# "make .../matlab" that didn't produce the file.
+$(WORKING_DATA_DIR)/$(MATLAB_FILE) : $(WORKING_DATA_DIR)/$(WORDLIST_FILE) \
+				     $(WORKING_DATA_DIR)/$(DIC_FILE) \
+				     $(WORKING_DATA_DIR)/$(FNUM_FILE) 
+	$(start_message)
+	count_wordvec \
+	        -mdir $(WORKING_DATA_DIR) \
+		-matlab 1 \
+		-precontext $(PRE_CONTEXT_SIZE) \
+		-postcontext $(POST_CONTEXT_SIZE) \
+		-rows $(ROWS) \
+		-columns $(COLUMNS) \
+		-col_labels_from_file $(COL_LABELS_FROM_FILE) \
+		-col_label_file "$(COL_LABEL_FILE)"
+	$(end_message)
+
+# SVD output (reduced vectors)
+$(WORKING_DATA_DIR)/$(WORDVEC_FILE) \
+$(WORKING_DATA_DIR)/$(SINGVAL_FILE) \
+$(WORKING_DATA_DIR)/$(RIGHT_SINGVEC_FILE) \
+$(WORKING_DATA_DIR)/$(SVD_DIAG_FILE) : $(WORKING_DATA_DIR)/$(COLL_FILE) \
+				       $(WORKING_DATA_DIR)/$(INDEX_FILE)
+	$(start_message)
+	-cd $(WORKING_DATA_DIR) && rm -f $(SVD_DIAG_FILE) $(WORDVEC_FILE) \
+				$(RIGHT_SINGVEC_FILE) $(SINGVAL_FILE)
+	cd $(WORKING_DATA_DIR) && svdinterface \
+	        -singvals $(SINGVALS) \
+	        -iter $(SVD_ITER)
+	$(end_message)
+
+# Encode word vectors in binary format; create word->vector offset and
+# vector offset->word DBM's.
+$(WORKING_DATA_DIR)/$(WORDVECBIN_FILE) \
+$(WORKING_DATA_DIR)/$(OFFSET2WORD_FILE) \
+$(WORKING_DATA_DIR)/$(WORD2OFFSET_FILE) : $(WORKING_DATA_DIR)/$(WORDVEC_FILE) \
+					  $(WORKING_DATA_DIR)/$(DIC_FILE)
+	$(start_message)
+	encode_wordvec \
+		-m $(WORKING_DATA_DIR)
+	$(end_message)
+
+# article vectors in binary format; article ID->vector offset and
+# vector offset->article ID DBM's
+$(WORKING_DATA_DIR)/$(ARTVECBIN_FILE) \
+$(WORKING_DATA_DIR)/$(OFFSET2ART_FILE) \
+$(WORKING_DATA_DIR)/$(ART2OFFSET_FILE) : $(WORKING_DATA_DIR)/$(WORDVECBIN_FILE) \
+					 $(WORKING_DATA_DIR)/$(WORDLIST_FILE) \
+					 $(WORKING_DATA_DIR)/$(DIC_FILE) \
+				   	 $(WORKING_DATA_DIR)/$(FNUM_FILE)
+	$(start_message)
+	count_artvec -m $(WORKING_DATA_DIR)
+	$(end_message)
+
+$(WORKING_DATA_DIR)/$(MODEL_PARAMS_TEXT_FILE) \
+$(WORKING_DATA_DIR)/$(MODEL_INFO_TEXT_FILE) \
+$(WORKING_DATA_DIR)/$(CORPUS_FORMAT_TEXT_FILE) : \
+			$(WORKING_DATA_DIR)/$(MODEL_PARAMS_BIN_FILE) \
+                        $(WORKING_DATA_DIR)/$(MODEL_INFO_BIN_FILE) \
+                        $(WORKING_DATA_DIR)/$(CORPUS_FORMAT_DATA_FILE)
+	$(start_message)
+	write_text_params -mdir $(WORKING_DATA_DIR)
+	$(end_message)

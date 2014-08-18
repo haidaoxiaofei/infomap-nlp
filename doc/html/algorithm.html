@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<title>Infomap Algorithm Description - coocurrence matrices, word
+vectors and quantum connectives</title>
+</head>
+
+
+<body>
+<h2>Infomap Algorithm Description</h2>
+
+<p>The Infomap software in this package takes a corpus of text
+documents and builds a WORDSPACE in which the words in the
+corpus are represented by <I>word vectors</I>. A word vector is a list
+of numbers (called coordinates) which encodes information about how
+the word is distributed over the corpus. Many experiments have
+demonstrated that words with similar word vectors often have similar
+or closely related meanings: the Infomap WORDSPACE can therefore be
+used to model similarities between different words by automatically
+comparing their behavior in text.
+</p>
+
+<p>
+The main algorithms used in the software are for building
+coocurrence matrices, concentrating information by reducing
+the number of dimensions, comparing word vectors using cosine
+similarity, and carrying out logical operations (so far these include
+negation and negated disjunction). These steps will be described in
+turn.
+
+<hr>
+
+<!-- Section on coocurrence -->
+<h3>Building coocurrence matrices</h3>
+
+<p> Many information retrieval systems start by building a <em>term
+document matrix</em>, which is a large table with one row for each
+term and one column for each document: each number then records the
+number of times a particular word occurred in a particular document.
+This gives each word a list of numbers, and this list of numbers is
+called a <i>word-vector</i>. A good way to think of these numbers is
+as `meaning-coordinates', just as latitude and longitude associate
+spatial coordinates with points on the surface of the earth. Each
+word, then, gets assigned a list of coordinates which determines a
+point in some (often high-dimensional) vector space. Readers who are
+not completely happy with the language of vectors might find an <a
+href="http://infomap.stanford.edu/papers/vector-chapter.pdf">introductory
+chapter</a> useful.
+</p>
+
+<p> When studying words and their properties, term document matrices
+are not ideal because many similar words are rarely used in the same
+document: for example, reports of sporting events often mention an
+<i>umpire</i> or a <i>referee</i> but only rarely use both of these
+words in the same article, making it difficult to work out that these
+words are very similar. The Infomap software addresses this by
+choosing a number of special <i>content bearing words</i> and
+assigning coordinates to the other words based upon how often then
+occurred near to one of these content bearing words. This is best
+illustrated by an example:
+
+<!-- example coocurrence table -->
+<TABLE WIDTH=100% CELLSPACING=5 vspace>
+  <TR>
+    <TD> HOT-FROM-THE-OVEN MEALS: Keep hot <font
+color="#B81513">food</font> HOT; warm isn't good enough. Set the oven
+temperature at 140 degrees or hotter. Use a meat thermometer. And
+cover with foil to keep <font color="#B81513"> food</font> moist. Eat
+within two hours.
+    </TD>
+<TD>	
+``Change is always happening,'' said the ebullient trumpeter,
+whose words tumble out almost as fast as notes from his trumpet.
+``That's one of the wonderful things about jazz
+    <font color="#B81513">music</font>.''
+
+For many jazz fans, Ferguson is one of the wonderful things
+about jazz <font color="#B81513">music</font>.
+</TD>
+    </TR>
+</TABLE>
+
+The words <i>music</i> and <i>food</i> are good candidates for
+content-words: they are normally unambiguous and seem to have clear
+meanings in terms of which other words can be defined. (Though there
+are almost always find potentially confusing uses such as "If music be
+the food of love, play on".)
+The above examples would begin to give
+us the following count-data:
+
+<BR>
+
+<TABLE cellpadding=2 width=40% border=1 hspace=10 vspace=10 align=center>
+<TR><TD>     </TD><TD>eat</TD><TD>hot</TD><TD>jazz</TD><TD>meat</TD><TD>trumpet</TD></TR>
+<TR><TD>Music</TD><TD>   </TD><TD>   </TD><TD>3   </TD><TD>    </TD><TD>1      </TD></TR>
+<TR><TD>Food </TD><TD> 1 </TD><TD> 2 </TD><TD>    </TD><TD> 1  </TD><TD>       </TD></TR>
+</TR>
+</TABLE>
+
+<br>
+
+<p>
+
+We proceed through the whole corpus of documents like this, for each
+word building up a "number signature" which tells us how often that
+word appeared in within a window of text near to each of the content
+bearing words. The size of this window of text can be altered, as can
+the choice of content bearing words. (A relatively stable method has
+been to choose as content words the 1000 most frequent words in a
+document collection after stopwords (such as <i>the</i>, <i>we</i> and
+<i>of</i> have been removed.) In this way, the WORDSPACE software
+builds a large coocurrence matrix in which the columns are content
+bearing words and each rows records the number of times a given word
+occured in the same region of text as a particular content bearing word.
+</p>
+
+<p>
+It is at this stage of the preprocessing that the WORDSPACE software
+can incorporate extra linguistic information such as part of speech
+tags and multiword expressions, if these are suitably recorded in the corpus.
+
+<hr>
+
+<!-- Section on LSA and a few related links -->
+
+<img SRC="./drive-car.gif" ALT="Picture of latent dimension" WIDTH=30%
+ALIGN="right">
+
+<h2>Reducing dimensions</h2>
+
+The number of <i>dimensions</i> of any vector space is defined to be
+the number of coordinates needed to represent each point, so for a
+table with 1000 numbers in each row, each row represent a point in a
+1000 dimensional space. This is often too many dimensions - the
+points have too much space in which to spread out and this results in
+very sparse information. There are many ways for concentrating
+information into a smaller space by reducing the number of
+dimensions. For example, the diagram on the right shows several words
+that occur in the contexts of <i>cars</i> and <i>driving</i>. Since
+these are often versions of the same underlying context, it makes
+sense to replace the coodinate axes for the words <i>car</i> and
+<i>drive</i> with a single axis which combines both.
+</p>
+
+<p>
+The technique normally used by the Infomap WORDSPACE software is
+called <i>singular value decomposition</i>, which has been used in
+information retrieval to reduce the sparseness in standard term
+document matrices. This process is often called <a
+href="http://www.cs.utk.edu/~lsi/">latent semantic indexing</a> or
+latent semantic analysis. This is only one possibility for reducing
+the number of dimensions of a dataset: others include <a
+href="http://www.cs.brown.edu/~th/papers/Hofmann-UAI99.pdf">probabilistic
+latent semantic analysis</a> and <a
+href="http://www.cs.toronto.edu/~roweis/lle/publications.html">local
+linear embedding</a>.
+</p>
+
+<p>
+When using the WORDSPACE software at Stanford we have used Mike Berry's 
+<a href="http://www.cs.utk.edu/~berry/projects.html">SVDPACKC</a> to
+calculate the singular value decomposition. The licensing for SVDPACKC
+is not the same as that for the WORDSPACE software itself and if you
+use SVDPACK you must make sure to obtain the correct licenses. The
+number of dimensions which you want to reduce to is another parameter
+which can be readily altered: we have had good results with 100
+dimensions, other researchers have found that somewhere between 200
+and 300 works best. As with many things, it is reasonable to assume
+that "best" is partly determined by the task in hand and that the
+question of "how many dimensions are needed to represent meaning" has
+many answers in different situations.
+
+These vectors are produced using the programs in the
+<i>preprocessing</i> directory.
+
+<hr>
+
+<!-- Comparing word vectors -->
+<h2>Comparing word vectors using cosine similarity</h2>
+
+Now that each word is represented by a vector with a suitable number
+of reduced dimensions, we can begin to compare words with one another
+to find out if they are similar or different. One standard way to do
+this is to use the cosine similarity measure.
+
+Let the vector
+<b>a</b> have coordinates (a<sub>1</sub>, ... , a<sub>n</sub>)
+and let the vector
+<b>b</b> have coordinates (b<sub>1</sub>, ... , b<sub>n</sub>).
+Their <i>scalar product</i> is defined to be the sum
+
+<br><br>
+<center> <b>a<sup>.</sup>b</b> = a<sub>1</sub>b<sub>1</sub> +
+... + a<sub>n</sub>b<sub>n</sub>, </center>
+<br>
+
+and if we divide this by the moduli ||<b>a</b>|| and ||<b>b</b>|| we
+obtain the cosine of the angle between the two vectors, which is
+called their <i>cosine similarity</i>
+
+<br><br>
+<center> cos(<b>a</b>,<b>b</b>) = (a<sub>1</sub>b<sub>1</sub> + ... +
+a<sub>n</sub>b<sub>n</sub>) / (||<b>a</b>|| ||<b>b</b>||). </center>
+<br>
+
+Again, these operations are described in much more detail in the <a
+href="http://infomap.stanford.edu/papers/vector-chapter.pdf">introduction
+to vectors</a>.
+
+This enables us to find the nearest neighbors of a given word (those
+with the highest cosine similarity) using the <i>associate</i> program
+in the <i>search</i> directory. 
+</p>
+
+<p>
+One of the great benefits of the vector formalism is that it allows us
+to combine words into sentences or documents by adding their vectors
+together. If article vectors have been built during the preprocessing
+phase, the <i>associate</i> program can also be used to find nearby
+documents and thus for information retrieval.
+</p>
+
+<p>
+Sch&#252;tze sometimes calls such composite vectors <i>context
+vectors</i> because they gather information from the context
+surrounding a particular word. Context vectors can be clustered using
+a variety of <a href="http://sourceforge.net/projects/senseclusters/">
+clustering algorithms</a>, and the centroids of the different clusters
+can be used to represent as different senses of words, giving <i>sense
+vectors</i>.
+</p>
+
+<hr>
+<!-- Quantum logical connectives -->
+<h2>Quantum connectives in WORDSPACE</h2>
+
+Though very successful for many goals including language acquisition
+and information retrieval, the vector model to date has suffered from
+serious theoretical drawbacks which researchers are only just
+beginning to address. The WORDSPACE we have described so far is a
+pretty blunt instrument: the only operations on vectors which we have
+introduced so far are addition and the scalar product, neither of
+which is affected by the order in which the vectors appear (by
+contrast with real language in which <i>Cain killed Abel</i> and
+<i>Abel killed Cain</i> have completely different meanings).
+
+To begin with, we would like to distinguish between the different
+logical connectives: searches for <i>A NOT B</i>, <i>A OR B</i> and
+<i>A AND B</i> should not give the same results. This turns out to be
+quite simple, at least for negation, where the equation
+
+<br><br>
+<center> <b>a</b> NOT <b>b</b> = <b>a</b> -
+(<b>a<sup>.</sup>b</b>)<b>b</b>
+</center>
+<br>
+
+can be shown to give a vector for the expression "<b>a</b> NOT
+<b>b</b>" which has <i>zero cosine similarity</i> with the unwanted
+vector <b>b</b>. Vectors with zero cosine similarity are said to be
+<i>orthogonal</i> to one another, and so the region of WORDSPACE
+corresponding to the notion "NOT <b>b</b>" is the subspace of points
+which are orthogonal to <b>b</b>. Similarly, taking the plane spanned
+by the vectors <b>a</b> and <b>b</b> gives an expression "<b>a</b> OR
+<b>b</b>" which is consistent with the idea of negation via
+orthogonality. These operations have demonstrated interesting
+strengths (and interesting weaknesses) when compared with the
+traditional Boolean connectives in <a
+href="http://infomap.stanford.edu/papers/negation-ir.pdf">document
+retrieval experiments</a>.
+</p>
+
+<p>
+It turns out that precisely the same logical operators on vectors were
+used by Birkhoff and von Neumann in the 1930s to describe the logic
+of a quantum mechanical system, which is why the logical operators are
+called the <i>quantum connectives</i> and the system as a whole is
+called <i>quantum logic</i>.
+</p>
+
+<p>
+The WORDSPACE software currently implements versions of quantum negation
+and negated disjunction (which for computational reasons turns out to
+be much more tractable than a positive disjunction).
+
+<!-- Contributors and References -->
+<hr>
+
+<p> The development of this software and the underlying methods has
+received contributions from several researchers during different
+phases of the Infomap project at the Computational Semantics
+Laboratory under the guidance of <a
+href="http://www-csli.stanford.edu/~peters/">Stanley Peters</a>.
+Hinrich Sch&#252;tze pioneered many of the original methods, using the
+WORDSPACE model for <a
+href="http://acl.ldc.upenn.edu/J/J98/J98-1004.pdf"> word sense
+discrimination</a>.  <a href="http://ling.northwestern.edu~/kaufmann">
+Stefan Kaufmann</a> was responsible for writing a new version of the
+software on which the current release is largely based. Dominic
+Widdows added <a
+href="http://infomap.stanford.edu/papers/negation-ir.pdf"> logical
+connectives</a> and incorporated other linguistic information
+including <a
+href="http://infomap.stanford.edu/papers/enrich-taxonomies.pdf"> part
+of speech</a> tags and multiword expressions. The current version for
+public release has been managed by Scott Cederberg.  Contributions and
+experiments from several other researchers are described in our <a
+href="http://infomap.stanford.edu/index.html#papers">Papers</a>.  </p>
+</p>
+
+
+<hr>
+<h2 id="papers">References</h2>
+
+<ul compact>
+
+<i>An introduction to the concepts behind vectors and vector spaces:</i>
+
+<br><br>
+
+<li>    
+Dominic Widdows (to appear) <a
+href="http://infomap.stanford.edu/papers/vector-chapter.pdf">Word
+Vectors and Search Engines</a> Chapter 5 of <em>Geometry and
+Meaning</em>, CSLI publications. 
+</li>
+    
+<br><br>
+
+<i>Pioneering work in the use of WORDSPACE for ambiguity learning and resolution:</i>
+<br><br>    
+<li>
+    Hinrich Sch&#252;tze (1997).
+    <em>Ambiguity Resolution in Language Learning</em>.
+    CSLI Publications. CSLI Lecture Notes number 71.
+</li>
+<li>    
+    Hinrich Schutze (1998).
+    <a href="http://acl.ldc.upenn.edu/J/J98/J98-1004.pdf">Automatic Word
+    Sense Discrimination.</a><i> Computational Linguistics, 24(1)</i>, 97-123.
+</li>
+    
+<br><br>
+
+<i>A very small sample from the literature on dimensionality reduction in
+    semantic processing:</i>
+<br>    <br>
+<li>
+    Michael W. Berry and Susan T. Dumais, and Gavin W. O'Brien (1994).
+    Using Linear Algebra for Intelligent Information Retrieval.
+    Published in <i>SIAM Review</i> 37:4 (1995), pp. 573-595.
+</li>
+<li>Thomas K. Landauer and Susan T. Dumais (1997). A solution to Plato's
+problem: The Latent Semantic Analysis theory of acquisition, induction
+andrepresentation of knowledge. <i>Psychological Review</i>, 104, 211-240
+</li>
+
+<br><br>
+
+<i>These papers describe the quantum connectives in WORDSPACE from a
+theoretical and a practical standpoint:</i>
+<br><br>    
+<LI> Dominic Widdows and Stanley Peters (2003).
+    <A
+    HREF="http://infomap.stanford.edu/papers/quantum-senses.pdf"> Word
+Vectors and Quantum Logic: Experiments with negation and
+disjunction.</A> <EM>Eighth Mathematics of Language
+Conference</EM>, Bloomington,
+    Indiana, June 20-22, 2003, pages 141-154
+    <A
+    HREF="http://infomap.stanford.edu/papers/quantum-senses.ps">(.ps)</A>
+</li>
+<li> Dominic Widdows (2003).
+    <a
+    href="http://infomap.stanford.edu/papers/negation-ir.pdf">
+    Orthogonal Negation in Vector Spaces for Modelling Word-Meanings and
+    Document Retrieval.</a>
+    <em>41st Annual Meeting of the Association for Computational
+    Linguistics</em>, Sapporo, Japan, July 7-12, pages 136-143.
+    <a
+    href="http://infomap.stanford.edu/papers/negation-ir.ps">(.ps)</a>    
+</li>
+    
+<br><br>
+
+<i>These papers describe the combination of word vectors with part of
+    speech information and multiword expressions:</i>
+<br><br>
+<li>
+    Dominic Widdows (2003).
+    <a
+    href="http://infomap.stanford.edu/papers/enrich-taxonomies.pdf">
+    Unsupervised methods for developing taxonomies by combining
+    syntactic and statistical information.</a> In <em>Proceedings of
+    HLT/NAACL</em>, Edmonton, Canada, June 2003, pages 276-283.
+    <a
+    href="http://infomap.stanford.edu/papers/enrich-taxonomies.ps">(.ps)</a>
+</li>
+<li>Timothy Baldwin, Colin Bannard, Takaaki Tanaka and Dominic
+    Widdows (2003) <a
+    href="http://lingo.stanford.edu/pubs/tbaldwin/acl2003mwe-decomposability.pdf">An
+Empirical Model of Multiword Expression Decomposability</a>, In
+<em>Proceedings of the ACL-2003 Workshop on Multiword Expressions:
+Analysis, Acquisition and Treatment</em>, Sapporo, Japan, pp. 89-96.
+</li>    
+<br>
+
+</body>
+
+</html>

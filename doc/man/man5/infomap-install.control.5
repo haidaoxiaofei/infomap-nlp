@@ -1,0 +1,105 @@
+.\" Process this file with 
+.\"    groff -man -Tascii infomap-install.control.5
+
+.TH INSTALL.CONTROL 5 "February 2004" "Infomap Project" "Infomap NLP Manual"
+
+.SH NAME
+.TP 
+@pkgdatadir@/install.control \- Infomap model installation control files
+
+.SH DESCRIPTION
+install.control files are used to control the behavior of
+.BR infomap-install (1)
+when it installs an Infomap NLP model.  An install.control file lists
+zero or more files; for each of the files listed, it specifies:  (1)
+whether that file should be installed if it is present in the working
+model directory; (2) whether a warning should be issued if that file
+is missing from the working model directory.
+
+The format of an install.control file is simple.  Each line of the
+file contains a filename, a colon, and a single letter indicating how
+that file is to be treated.  "Y" means to install the file if it is
+present, and to give a warning if it is missing.  "y" means to install
+the file if present, but not to warn if it is missing.  "N" means to
+ignore the file (i.e. do not install, do not warn if missing).  Any
+other letter will result in a warning being issued by 
+.BR infomap-install (1).
+
+Files will be ignored if they are not mentioned at all in the
+install.control file; the "N" control letter is provided anyway
+so that filenames can be left in install.control files as placeholders.
+
+Blank lines and lines beginning with "#" are ignored.
+
+.SH EXAMPLES
+Below are partial contents of an example install.control file
+
+.PD 0
+# This line is a comment 
+.LP
+
+.LP
+# Install file foo.bar, warn if missing
+.LP
+foo.bar:Y
+.LP
+
+.LP
+# Install file bam.baz, ignore if missing
+.LP
+bam.baz:y
+.LP
+
+.LP
+# Ignore file yogibear
+.LP
+yogibear:N
+.LP
+
+.LP
+# The following lines are illegal
+.LP
+# and will generate warnings
+.LP
+jimbob:n
+.LP
+jerryjoe:Noinst
+
+.PD
+
+
+.SH FILES
+.I @pkgdatadir@/install.control
+.RS
+A default install.control file with generally sensible settings.
+This file causes those parts of the model necessary for use by
+search-side Infomap programs (like
+.BR associate (1))
+to be installed, but not other files.  It causes warnings when
+files essential to
+.BR associate (1) 
+and other search-side programs are missing, but not when other 
+files are missing.
+.RE
+
+.SH SEE ALSO
+.BR infomap-install (1), \ infomap-build (1).
+
+.SH BUGS
+.BR infomap-install (1)
+not very robust to malformed install.control files.
+Please report bugs to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+.SH CREDITS
+The 
+.I install.control
+file format was designed by Scott Cederberg.
+The Infomap NLP software was written by Stefan Kaufmann, Hinrich
+Schuetze, Dominic Widdows, Beate Dorow, and Scott Cederberg.  The
+Infomap algorithm was originally developed by Hinrich Schuetze.
+
+.SH AUTHOR
+This manual page was written by Scott Cederberg.  Please direct
+inquiries and bug reports to 
+.BR infomap-nlp-users@lists.sourceforge.net .

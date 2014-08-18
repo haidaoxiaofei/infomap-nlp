@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<title>Infomap User Manual</title>
+</head>
+
+
+<body>
+<h1>Infomap User Manual</h1>
+<h2>Table of Contents</h2>
+<ul>
+  <li><a href="#intro">Introduction</a></li>
+  <li><a href="#exintro">Introduction to Examples</a></li>
+  <li><a href="#building">Building a Model</a></li>
+  <li><a href="#searching">Searching Models</a></li>
+</ul>
+
+<h2><a name="intro"/>Introduction</a></h2>
+<p>The Infomap software is based on the concept of a
+<i>model</i>; each model consists of the files in a directory
+known as the &quot;model directory&quot; or &quot;model data
+directory&quot; for that model.  The Infomap software performs two
+basic functions:  <i>building</i> models by learning them from a
+free-text corpus using certain learning parameters specified by the
+user, and <i>searching</i> an existing model to find the words or
+documents that best match a query according to that model.  After a
+model has been built, it can also be <i>installed</i> to make searching it
+more convenient, and to allow other users to search it conveniently.</p>
+
+<p>This manual describes how to use the Infomap software to <a
+href="#building">build</a> models and to <a
+href="#searching">search</a> models once they have been built.  It
+also discusses <a href="#installing">installing</a> models.</p>
+
+<p>Model-building and search are performed using an algorithm similar
+to Latent Semantic Analysis (LSA) (a/k/a Latent Semantic Indexing, or
+LSI).  For details on how the Infomap algorithm works, please see the
+<a href="algorithm.html">Infomap Algorithm Description</a>.</p>
+
+<h2><a name="exintro"/>Introduction to Examples</a></h2> 
+<p>To make the discussion of building and searching models more
+concrete, this manual uses two running examples.  Each example
+involves a fictitious corpus that we imagine to be in one of the two
+<a href="input_formats.html">input formats</a> recognized by the
+model-building software.  If you would like to follow a worked example
+using corpora that are included with the software distribution,
+see the <a href="tutorial/index.html">Infomap tutorial</a>.</p>
+
+<p>The <tt>sf</tt> corpus is entirely in a single file,
+<tt>/usr/local/share/corpora/sf/sf.txt</tt>.  The <tt>many</tt> corpus
+consists of many files, all of which are in the directory
+<tt>/usr/local/share/corpora/many/</tt>.  The file
+<tt>/usr/local/share/corpora/manyNames.txt</tt> contains the filenames
+of all of the files making up the <tt>many</tt> corpus.  Details on
+the formats of these two imaginary corpora (which are the two formats
+that the Infomap model-building code can currently parse) can be found
+in <a href="input_formats.html">this document</a>.</p>
+
+<p>For the sake of later examples, we will imagine that the
+<tt>sf</tt> corpus consists of articles published recently in a
+mainstream U.S. newspaper, and that the <tt>many</tt> corpus consists
+of medical journal papers.</p>
+
+<h2><a name="building"/>Building a Model</a></h2>
+<p>Building a model with the Infomap software consists of three steps:
+<ul><li><a href="#building_s">Building (compiling) and installing</a> 
+    the Infomap software.</li>
+    <li><a href="#building_c">Obtaining a corpus</a> in the
+appropriate format.</li>
+    <li>Running the software to 
+    <a href="#building_m">build the model.</a></li>
+</ul>
+</p>
+
+<h3><a name="building_s"/>Building (Compiling) and Installing the Infomap
+Software</h3>
+<p>The Infomap software uses the GNU build system, in particular <a
+href="http://www.gnu.org/software/autoconf/">Autoconf</a> and <a
+href="http://www.gnu.org/software/automake/">Automake</a>.  Therefore,
+from the top-level directory created when you unpack the distribution
+tarball, you should run <pre>
+  $ ./configure
+  $ make
+</pre>
+The first of these steps determines various things about your system.
+In particular, it checks for a DBM-compatible database library.
+If any of these checks fails, you will need to correct the problem
+before compilation can proceed.  Please examine the output of
+<tt>configure</tt> carefully to determine what the problem is.  It may
+be that you need to install a DBM-compatible library, like <a href="
+http://www.gnu.org/software/gdbm/gdbm.html">GNU DBM</a> (also
+available as RPM and .deb packages for Linux).</p>
+
+<p>If you have difficulty correcting the problem, please send mail to
+<a
+href="mailto:infomap-nlp-users@lists.sourceforge.net">infomap-nlp-users@lists.sourceforge.net</a>.</p>
+
+<p>The second step (running <tt>make</tt>) compiles the software.  If
+<tt>configure</tt> succeeded, then <tt>make</tt> should run without
+problems.  If <tt>make</tt> has trouble after a successful
+<tt>configure</tt>, please report the problem to <a
+href="mailto:infomap-nlp-users@lists.sourceforge.net">infomap-nlp-users@lists.sourceforge.net</a>.</p>
+
+<p>Once the software has been compiled by a successful <tt>make</tt>,
+you should install it.  This is done using the command <tt>make
+install</tt>.  By default, the installed files are placed in various
+subdirectories of the <tt>/usr/local</tt> directory.  For instance,
+executable programs are installed in <tt>/usr/local/bin</tt>, and
+manual pages are installed in <tt>/usr/local/man</tt>.  Shared data
+files used by the Infomap NLP software are installed in
+<tt>/usr/local/share/infomap-nlp/</tt>.  This HTML documentation is
+installed in <tt>/usr/local/share/doc/infomap-nlp/</tt>.</p>
+
+<p>Installing to <tt>/usr/local</tt> requires root access.  To perform
+this default installation, you would use:<pre>
+  $ su
+  Password: (enter root password)
+  # make install
+  # exit
+  $
+</pre>
+
+<p>The advantage of installing to <tt>/usr/local</tt> (or to another
+standard systemwide directory, like <tt>/usr</tt>) is that the
+programs and manual pages should automatically become available to all
+users on your system.  The disadvantage is that root access is
+required.  If
+you need to install to another location, you can use the
+<tt>--prefix</tt> option to the <tt>configure</tt> command.  </p>
+
+<p>For example, imagine that your username is <tt>jrandom</tt> and
+your home directory is <tt>/home/jrandom</tt> (you should replace
+<tt>/home/jrandom</tt> with your actual home directory, or another
+directory of your choice, in the examples below).  Then, suppose you
+want to install to subdirectories of
+<tt>/home/jrandom/install</tt> (i.e. programs go to
+<tt>/home/jrandom/install/bin</tt>, man pages go to
+<tt>/home/jrandom/install/man</tt>, and so forth), you would use the 
+following sequence of commands:<pre>
+  $ ./configure --prefix=/home/jrandom/install
+  $ make
+  $ make install
+</pre>
+In this case, you would want to add <tt>/home/jrandom/install/bin</tt>
+to your <tt>PATH</tt> environment variable, and
+<tt>/home/jrandom/install/man</tt> to your <tt>MANPATH</tt>.
+
+
+
+<h3><a name="building_c"/>Corpus Formats</h3> <p>This user manual and
+its examples assume that you have a corpus in a format that can be
+parsed by the Infomap software.  It may be necessary for you to
+convert a corpus's format before using the software on that corpus.
+The Infomap software accepts corpora in two simple formats, which are
+described <a href="input_formats.html">here</a>.</p>
+
+<h3><a name="building_m"/>Building a Model With the Infomap Software</h3>
+<p>Infomap models are built using the <tt>infomap-build</tt> program,
+which automatically invokes other Infomap NLP programs.  The
+<tt>infomap-build(1)</tt> manual page (run <tt>man infomap-build</tt>
+to see it) gives details of how to run this program, but imitating the
+examples below is probably an easier way to use it for the first time.
+
+<h4><a name="single_file_build"/>Building a model from a single-file
+corpus</a></h4>
+
+<p>Consider building a model from our single-file <tt>sf</tt> <a
+href="#exintro">example corpus</a>.  Recall that this corpus consists
+of the single file <tt>/usr/local/share/corpora/sf/sf.txt</tt>.  Let's
+say that we want this model to be called <tt>sf</tt> after the name of
+the corpus, and that we would like the directory containing the
+<tt>sf</tt> model files (known as the <i>model data directory</i>) to
+be created in <tt>/home/jrandom/infomap_models</tt>.</p>
+
+<p>First, we set the environment variable <tt>INFOMAP_WORKING_DIR</tt>
+to <tt>/home/jrandom/infomap_models</tt>.  This environment variable
+is used by the <tt>infomap-build</tt> program to determine where it
+should create model data directories when it builds models.  It is
+called the working directory because it is the place where models are
+stored as they are being built.  (After building, we can use the
+<tt>infomap-install</tt> program to install the files from the working
+directory to a different location.)  To set the environment variable
+in <tt>sh</tt> or <tt>bash</tt>, run <pre>
+  $ INFOMAP_WORKING_DIR=/home/jrandom/infomap_models
+  $ export INFOMAP_WORKING_DIR
+</pre>
+In <tt>csh</tt> or <tt>tcsh</tt>, use <pre>
+  % setenv INFOMAP_WORKING_DIR /home/jrandom/infomap_models
+</pre>
+</p>
+
+<p>Once <tt>INFOMAP_WORKING_DIR</tt> is set, simply run<pre>
+  $ infomap-build -s /usr/local/share/corpora/sf/sf.txt sf
+</pre>
+This command tells <tt>infomap-build</tt> to build a model called
+<tt>sf</tt> from the corpus contained in the single file
+<tt>/usr/local/share/corpora/sf/sf.txt</tt>.</p>
+
+<p>When this command is done, the directory
+<tt>/home/jrandom/infomap_models/sf</tt> should exist and should
+contain a number of files.  At this point you can <a
+href="#searching">search the model</a> using the <tt>associate</tt>
+program, or <a href="#installing_m">install the model</a>.</p>
+
+<p>To build a model from the <tt>many</tt> <a href="#exintro">example
+corpus</a>, we set <tt>INFOMAP_WORKING_DIR</tt> in the same way.
+Then, assuming we would like to call this model <tt>many_01</tt>
+we run<pre>
+  $ infomap-build -m /usr/local/share/corpora/manyNames.txt many_01
+</pre>
+This command tells <tt>infomap-build</tt> to build a model called
+<tt>many_01</tt> from the corpus made up of the files listed in
+<tt>/usr/local/share/corpora/manyNames.txt</tt>.</p>
+
+<p>When this command is done, the directory
+<tt>/home/jrandom/infomap_models/many_01</tt> should exist and should
+contain a number of files.  At this point you can <a
+href="#searching">search the model</a> using the <tt>associate</tt>
+program, or <a href="#installing_m">install the model</a>.</p>
+
+<h4><a name="installing_m"/>Installing an Infomap Model</h4>
+<p>Before installing a model it is generally a good idea to test the
+model by searching it using the <tt>associate</tt> program.  See <a
+href="#searching">instructions on searching</a>.</p>
+
+<p>Models are installed using the <tt>infomap-install</tt> program.
+This program copies some of the model files created by
+<tt>infomap-build</tt> from the working directory to a more permanent
+<i>model directory</i>.  There are at least three advantages to doing
+this:
+<ol><li><b>Making models available to others.</b>  Installing useful
+models in a systemwide directory can make it much more convenient for
+other researchers to search those models using
+<tt>associate</tt>.</li>
+<li><b>Keeping experimental models and known useful models
+separate.</b>  If you create all models initially under one directory,
+then copy those that prove useful to another directory, you can reduce
+the risk of accidentally overwriting a model you want to keep around.
+This will allow you to experiment with model creation with less fear
+of messing something up.</li>
+<li><b>Conserving disk space.</b>  Some intermediate model files that are not
+needed for search are kept around by <tt>infomap-build</tt> because
+they might be useful for other forms of experimentation.  By
+installing only those files needed for search and deleting the working copy
+of a model, disk space is saved.</li>
+</ol></p>
+
+<p>A default systemwide model directory is determined when the Infomap
+NLP software is <a href="#building_s">installed</a>.  Typically this
+directory will be <tt>/usr/local/share/infomap-nlp/models</tt>.  The
+default behavior of <tt>infomap-install</tt> is to install models as
+subdirectories of this directory.  Note that special permissions (such
+as root access) will typically be required to install models to this
+directory.</p>
+
+<p>Alternatively, the installation directory can be specified using
+either the <tt>INFOMAP_MODEL_DIR</tt> environment variable (which
+overrides the systemwide default) or the <tt>-i</tt> command-line
+option to <tt>infomap-install</tt> (which overrides both
+<tt>INFOMAP_MODEL_DIR</tt> and the systemwide default).  See the
+<tt>infomap-install(1)</tt> manual page for details.</p>
+
+<p>For instance, imagine that we have built the <tt>sf</tt> model from
+the <tt>sf</tt> example corpus as described above, and that the
+<tt>INFOMAP_WORKING_DIR</tt> environment variable is not set.  Then the
+commands<pre>
+  $ su
+  Password: (enter root password)
+  # infomap-install sf
+  # exit
+  $
+</pre>
+will copy the <tt>sf</tt> model data directory and some of its
+contents from <tt>/home/jrandom/infomap_models</tt> to the systemwide
+model directory.</p>
+
+<p>Alternatively, <pre>
+  $ export INFOMAP_MODEL_DIR=/home/jrandom/installed-models
+  $ infomap-install sf
+</pre>
+will copy the <tt>sf</tt> model data directory and some of its
+contents into the directory <tt>/home/jrandom/installed-models</tt>.
+So will <pre>
+  $ infomap-install -i /home/jrandom/installed-models sf
+</pre>
+</p>
+
+<p>See the <tt>infomap-install(1)</tt> manual page for more options.</p>
+
+<h2><a name="searching"/>Searching Models</a></h2>
+<ul><li><a href="#assoc_cmd">The <tt>associate</tt>
+command</a></li>
+<li><a href="#assoc_outpt">Output of the <tt>associate</tt>
+command</a></li>
+<li><a href="#assoc_choosing_model">How the <tt>associate</tt> command
+chooses which model to use</a></li>
+<li><a href="#doc_retrieval">Retrieving documents</a></li>
+</ul>    
+
+<h3><a name="assoc_cmd"/>The <tt>associate</tt> command</h3>
+<p>Searching is done using the <tt>associate</tt> command.  Details
+about the operation of this command can be found in the
+<tt>associate(1)</tt> man page.  We describe common ways of using this
+command below.</p>
+
+<p>Suppose that we want to search the <tt>sf</tt> model that we built
+in the example above, and that we have not yet installed this model
+using <tt>infomap-install</tt>.  Imagine that we want to find
+words related to suits (the article of clothing, not lawsuits).  Then
+we run the command<pre>
+  $ associate -t -c sf suit NOT lawsuit
+</pre>
+The <tt>suit NOT lawsuit</tt> part of this command is the
+<i>query</i>; it describes what we are looking for.  The 
+<tt>-c</tt> option tells which model to search (think
+&quot;corpus&quot; to remember this option).  The argument to the
+<tt>-c</tt> option is the <i>model tag</i>, or name, of the model to
+be searched.  The <tt>-t</tt> option tells <tt>associate</tt> to use a
+temporary working model, rather than an installed model; this means
+that <tt>associate</tt> looks for the model data directory in
+<tt>INFOMAP_WORKING_DIR</tt>.</p>
+
+<p>How does associate find models that <i>have</i> been installed
+using <tt>infomap-install</tt>?  It uses the
+<tt>INFOMAP_MODEL_PATH</tt>.  This environment variable, similar in
+nature to the <tt>PATH</tt> and <tt>MANPATH</tt> variables, contains a
+list of directories, separated by colons, in which Infomap model data
+directories might be found.  For instance, to look for Infomap models
+only in the systemwide data directory, you could issue the
+command<pre>
+  $ INFOMAP_MODEL_PATH=/usr/local/share/infomap-nlp/models
+  $ export INFOMAP_MODEL_PATH
+</pre>
+or, under <tt>csh</tt><pre>
+  % setenv INFOMAP_MODEL_PATH /usr/local/share/infomap-nlp/models
+</pre>With this path, the command<pre>
+  $ associate -c sf suit NOT lawsuit
+</pre>
+would perform the same search as above, but would expect to find the
+<tt>sf</tt> model in <tt>/usr/local/share/infomap-nlp/models</tt>
+(where it would be copied by <tt>infomap-install</tt>) rather than in <tt>/home/jrandom/infomap-models</tt>.</p>
+
+<p>By default, <tt>associate</tt> retrieves words matching the query;
+using the <tt>-d</tt> option tells it to retrieve documents instead.</p>
+
+
+
+<h3><a name="assoc_outpt"/>Output of the <tt>associate</tt>
+command</h3>
+<p>The <tt>associate</tt> command returns as its output a list of the
+words or documents best matching the query, in descending order of
+relevance.  Each line of output consists of either a word or a
+document ID, followed by a colon, followed by a similarity score
+indicating how good a match for the query that word or document is
+judged to be.  In the case of document retrieval, the document ID can
+then be used to obtain the document itself.</p>
+
+<p>By default, associate will return the 20 words or documents that
+best match the query.  The <tt>-n</tt> command-line option can be used
+to override this default and specify how many words or documents to
+return.</p>
+
+<p>The <tt>-f</tt> command-line option will cause the matching words
+and documents, and the <a href="algorithm.html">WordSpace vector</a>
+for each, to be written to the specified file.  This can be useful for
+further processing.  (For instance, the Infomap Word Spectrum Plotter
+can use these files as a source of items and coordinates to plot.)</p>
+
+<h3><a name="doc_retrieval"/>Retrieving documents with document
+ID's</h3>
+<p>Once we have run an <tt>associate</tt> command with the
+<tt>-d</tt> option to retrieve documents, then what?  
+We have a list of &quot;document
+ID's&quot;, but what do they mean, and how do we use them to get the
+documents themselves?</p>
+
+<p>First of all, we should point out that document retrieval fetches
+documents from the original corpus, so the corpus must be in the same
+location and have exactly the same format as it did when we built the
+model in order for document retrieval to function reliably.  If this
+is the case, we can use the <tt>print_doc</tt> command to look up
+documents from the document ID's and print them out.</p>
+
+<p>The <tt>print_doc</tt> command is extremely simple.  It accepts one
+or more document ID's on the command line, and it prints the document
+corresponding to each ID to standard out.  If more than one document
+is printed, the documents are separated by a blank line, a line
+containing &quot;<tt>===</tt>&quot;, and another blank line.</p>
+
+<p>The <tt>print_doc</tt> program determines which model to use 
+in the same way that <tt>associate</tt>
+does.  That is, it takes a <tt>-c</tt> option whose argument is the
+model tag, and searches for a directory of that name in the
+<tt>INFOMAP_MODEL_PATH</tt> or, if the <tt>-t</tt> option has been
+given, in the <tt>INFOMAP_WORKING_DIR</tt>.  If <tt>print_doc</tt>
+finds a model different from the one <tt>associate</tt> used to
+retrieve the results, then its results will be meaningless, so be careful.
+
+<p>It is much easier to perform document retrieval with the Infomap
+web interface, which is planned for future release.</p>
+
+</body>
+</html>

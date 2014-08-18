@@ -1,0 +1,110 @@
+# Copyright (c) 2004, Stanford University
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+# 
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+# 
+#     * Redistributions in binary form must reproduce the above
+#       copyright notice, this list of conditions and the following
+#       disclaimer in the documentation and/or other materials provided
+#       with the distribution.
+# 
+#     * Neither the name of Stanford University nor the names of its
+#       contributors may be used to endorse or promote products derived
+#       from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+WORDLIST_FILE           = wordlist
+DIC_FILE	        = dic
+COLL_FILE	        = coll
+INDEX_FILE	        = indx
+MATLAB_FILE	        = matlab
+WORDVEC_FILE	        = left
+SINGVAL_FILE	        = sing
+RIGHT_SINGVEC_FILE      = rght
+SVD_DIAG_FILE           = svd_diag
+FNUM_FILE               = numDocs
+WORDVECBIN_FILE	        = wordvec.bin
+WORD2OFFSET_FILE        = word2offset
+OFFSET2WORD_FILE        = offset2word
+NUMBER2NAME_FILE        = number2name
+NAME2NUMBER_FILE        = name2number
+ARTVECBIN_FILE	        = artvec.bin
+ART2OFFSET_FILE	        = art2offset
+OFFSET2ART_FILE	        = offset2art
+MODEL_PARAMS_BIN_FILE   = model_params.bin
+MODEL_PARAMS_TEXT_FILE  = model_params.txt
+MODEL_INFO_BIN_FILE     = model_info.bin
+MODEL_INFO_TEXT_FILE    = model_info.txt
+CORPUS_FORMAT_DATA_FILE  = corpus_format.bin
+CORPUS_FORMAT_TEXT_FILE = corpus_format.txt
+
+DEFAULT_TOC = default.toc
+
+
+# All of these are written to 'filenames.h' in C preprocessor format
+
+FILENAME_LIST	=       WORDLIST_FILE DIC_FILE COLL_FILE INDEX_FILE \
+			MATLAB_FILE WORDVEC_FILE SINGVAL_FILE \
+			RIGHT_SINGVEC_FILE SVD_DIAG_FILE \
+			FNUM_FILE WORDVECBIN_FILE \
+			WORD2OFFSET_FILE OFFSET2WORD_FILE \
+			NUMBER2NAME_FILE NAME2NUMBER_FILE ARTVECBIN_FILE \
+			ART2OFFSET_FILE OFFSET2ART_FILE \
+			MODEL_PARAMS_BIN_FILE MODEL_PARAMS_TEXT_FILE \
+			MODEL_INFO_BIN_FILE MODEL_INFO_TEXT_FILE \
+			CORPUS_FORMAT_DATA_FILE CORPUS_FORMAT_TEXT_FILE \
+			DEFAULT_TOC
+
+
+FILENAME_HEADER = filenames.h
+# Constant defined and checked to prevent
+# circular inclusion of the filename header
+FILENAME_HEADER_CONST = FILENAMES_H
+
+GPATH = $(FILENAME_HEADER)
+
+define print_filenames_for_header
+$(foreach file, $(FILENAME_LIST), echo >> $(FILENAME_HEADER) \#define $(file) \"$($(file))\";)
+endef
+
+filenames : $(FILENAME_HEADER)
+
+$(FILENAME_HEADER) : Makefile.filenames
+	$(start_message)
+	@echo > $(FILENAME_HEADER) \
+	   "/**************************************************"
+	@echo >> $(FILENAME_HEADER) \
+	   "   File name definitions for the \"$(CORPUS_NAME)\" corpus."
+	@echo >> $(FILENAME_HEADER) \
+	   "   Generated on " `date`
+	@echo >> $(FILENAME_HEADER) \
+	   "   **************************************************/"
+	@echo >> $(FILENAME_HEADER) \
+	   "#ifndef $(FILENAME_HEADER_CONST)"
+	@echo >> $(FILENAME_HEADER) \
+	   "#define $(FILENAME_HEADER_CONST) 1"
+	@echo >> $(FILENAME_HEADER)
+	@$(print_filenames_for_header)
+	@echo >> $(FILENAME_HEADER)
+	@echo >> $(FILENAME_HEADER) \
+	   "#endif /* !$(FILENAME_HEADER_CONST) */"
+	@echo >> $(FILENAME_HEADER) \
+	   "/* EOF. */"
+	$(end_message)
+

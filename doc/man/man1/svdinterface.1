@@ -1,0 +1,154 @@
+.\" Process this file with 
+.\"    groff -man -Tascii svdinterface.1
+
+.TH SVDINTERFACE 1 "February 2004" "Infomap Project" "Infomap NLP Manual"
+
+.SH NAME
+.TP 
+svdinterface \- invoke SVDPACKC to perform SVD
+
+.SH SYNOPSIS
+.B svdinterface
+.BR -singvals " <num_singvals> " -iter " <num_iter> "
+
+.SH DESCRIPTION
+.B svdinterface
+uses the SVDPACKC library from the University of Tennessee to reduce
+the dimensions of a matrix using Singular Value Decomposition (SVD).
+Note that the SVDPACKC library (and therefore the 
+.B svdinterface
+program) are under a different license from the rest of the 
+Infomap NLP software.
+In particular, the incorporation of SVDPACKC or the
+.B svdinterface 
+program in a commercial product requires the express consent of
+the University of Tennessee.  You have been warned.
+
+Note that 
+.B svdinterface
+must be run in the directory in which the model is being built.
+(I.e. the 
+.IR "model data directory" ,
+which contains the actual model files.)  The
+.B infomap-build 
+program takes care of this requirement automatically.
+
+.SH OPTIONS
+.TP
+.BI -singvals \ <num_singvals>
+The number of singular values to be produced in the resulting
+matrix.  This is therefore the number of dimensions that the
+word vectors will ultimately have.
+
+.TP
+.BI -iter \ <num_iter>
+The number of iterations to use in the algorithm that computes the
+SVD.
+
+.\" .SH EXAMPLES
+
+.SH INPUT FILES
+These files are read from the model data directory, which must
+be the current working directory when 
+.B svdinterface
+is invoked.
+
+.I indx
+.RS
+This file and 
+.I coll
+taken together encode the pre-SVD matrix.  See
+.BR count_wordvec (1).
+.RE
+
+.I coll
+.RS 
+This file and
+.I indx
+taken together encode the pre-SVD matrix.  See
+.BR count_wordvec (1).
+.RE
+
+.I model_params.bin
+.RS
+Reads in this file and writes out a modified version.
+See 
+.BR prepare_corpus (1).
+.RE
+
+.I model_info.bin
+.RS
+Reads in this file and writes out a modified version.
+See
+.BR prepare_corpus (1).
+.RE
+
+
+.SH OUTPUT FILES
+All of these files are written to the model data directory,
+which is taken to be the current working directory when
+.B svdinterface
+is invoked.
+
+.I left
+.RS
+The left singular vectors that result from the Singular Value
+Decomposition.  These are the "word vectors" that are used by
+.BR associate (1).
+.RE
+
+.I rght
+.RS
+The right singular vectors that result from the Singular Value
+Decomposition.  These are not used by the current implementation.
+.RE
+
+.I sing
+.RS
+The singular values produced by Singular Value Decomposition (the
+diagonal elements of the diagonal matrix that is produced).  These
+are not used by the current implementation.
+.RE
+
+.I model_params.bin
+.RS
+Reads in this file and writes out a modified version.
+See 
+.BR prepare_corpus (1).
+.RE
+
+.I model_info.bin
+.RS
+Reads in this file and writes out a modified version.
+See
+.BR prepare_corpus (1).
+.RE
+
+
+.SH SEE ALSO
+.BR prepare_corpus (1), \ count_wordvec (1), \ encode_wordvec (1), \
+\ count_artvec (1), \ write_text_params (1).
+
+.SH DIAGNOSTICS
+Returns 0 to indicate success; nonzero value to indicate error.
+
+.SH BUGS
+This page should have a more detailed description of the input
+and output file formats.  Ideally, we should have a single interface
+program that can use various different SVD libraries on the back end.
+Please report bugs to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+.SH CREDITS
+The Infomap NLP software was written by Stefan Kaufmann, Hinrich
+Schuetze, Dominic Widdows, Beate Dorow, and Scott Cederberg.  The
+Infomap algorithm was originally developed by Hinrich Schuetze.  
+.B svdinterface
+uses the SVDPACKC library from the University of Tennessee.
+Incorporating this library in a commercial product requires the 
+express permission of the University of Tennessee.
+
+.SH AUTHOR
+This manual page was written by Scott Cederberg.  Please direct
+inquiries and bug reports to 
+.BR infomap-nlp-users@lists.sourceforge.net .

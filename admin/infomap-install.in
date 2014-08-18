@@ -1,0 +1,111 @@
+#! /bin/sh
+
+# series of lines
+# filename:x
+# where "x" is a letter telling us what to do
+
+prefix=
+
+PATH=@bindir@:/bin:/usr/bin:/usr/local/bin
+want_flag=0
+filename=""
+exit_status=0
+ic_file=@pkgdatadir@/install.control
+working_model_tag=""
+installed_model_tag=""
+
+ME=`basename $0`
+
+case "$#" in
+    0)
+      echo
+      echo "Usage: $ME [-c install_control_file] [-w working_dir]"
+      echo "       [-i install_dir] <working_model_tag> [installed_model_tag]"
+      echo
+      exit 1
+    ;;
+esac
+
+# Read command line options.
+while test $# -gt 0; do
+  case "$1" in
+    -c)
+       shift
+       ic_file=$1
+     ;;
+
+    -i)
+       shift
+       INFOMAP_MODEL_DIR=$1
+     ;;
+
+    -w)
+       shift
+       INFOMAP_WORKING_DIR=$1
+     ;;
+
+    *) if test -z "$working_model_tag"; then
+         working_model_tag=$1
+         installed_model_tag=$1
+       else
+         installed_model_tag=$1
+       fi
+     ;;
+  esac
+  shift
+done
+
+if test -z "$INFOMAP_MODEL_DIR"
+then
+  INFOMAP_MODEL_DIR=@pkgdatadir@/models
+fi
+
+if test -z "$INFOMAP_WORKING_DIR"
+then
+  INFOMAP_WORKING_DIR=.
+fi
+
+working_dir=$INFOMAP_WORKING_DIR/$working_model_tag
+model_dir=$INFOMAP_MODEL_DIR/$installed_model_tag
+
+install -d -m 755 $model_dir
+exit_status=$?
+
+echo "Using install control file \"$ic_file\""
+for i in `sed 's/^[ \t]*#.*//
+               s/^[ \t]*$//
+	       s/:/ /g' "$ic_file"` 
+do
+  if test $want_flag -eq 1
+  then
+    want_flag=0
+    if test x"$i" = xN; then continue; fi
+
+    if test x"$i" = xY
+    then
+       
+       if ! test -f $working_dir/$filename
+       then
+         echo "Missing file \"$filename\"." 1>&2
+         exit_status=1
+	 continue
+       fi
+       i=y
+    fi
+
+    if test x"$i" = xy; then
+      if test -f $working_dir/$filename; then
+        install -m 644 $working_dir/$filename $model_dir
+	exit_status=$?
+      fi
+    else
+      echo "Unrecognized flag \"$i\" for file \"$filename\"." 1>&2
+      exit_status=1
+    fi
+  else
+    want_flag=1
+    filename=$i
+  fi
+done
+
+exit $exit_status

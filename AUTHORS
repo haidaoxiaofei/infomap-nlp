@@ -1,0 +1,20 @@
+The Infomap NLP software was originally written by Stefan Kaufmann,
+based on earlier work by Hinrich Schuetze, who developed the Infomap
+algorithm.
+
+Dominic Widdows <dwiddows@csli.stanford.edu> added functionality
+including the orthogonal vector "NOT" feature.  He also contributed to
+the documentation.
+
+Beate Dorow <dorowbe@ims.uni-stuttgart.de> made various improvements
+and feature additions.
+
+Scott Cederberg <cederber@csli.stanford.edu> did various refactoring
+and clean-up to prepare for public distribution.  He wrote most of the
+documentation.  He also autoconfiscated the package, and so can
+probably be blamed for most installation malfunctions.
+
+The University of Tennessee, and particularly Mike Berry, wrote the
+SVDPACKC library, of which svd/svdinterface/las2.c is a part.  Please
+note that this file is distributed under a different license from the
+rest of the package; see the file COPYING for details.

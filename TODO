@@ -1,0 +1,4 @@
+We'd like to make the code more flexible to different character sets
+and sooner or later should go to Unicode.
+
+admin/install.control file should be generated automatically.

@@ -1,0 +1,67 @@
+model_params.o model_params.o: ../../lib/model_params.c \
+  ../../lib/model_params.h /usr/include/stdio.h /usr/include/sys/types.h \
+  /usr/include/sys/appleapiopts.h /usr/include/sys/cdefs.h \
+  /usr/include/machine/types.h /usr/include/ppc/types.h \
+  /usr/include/machine/ansi.h /usr/include/ppc/ansi.h \
+  /usr/include/machine/endian.h /usr/include/ppc/endian.h \
+  /usr/include/sys/stat.h /usr/include/sys/time.h /usr/include/time.h \
+  /usr/include/gcc/darwin/3.3/machine/limits.h /usr/include/ppc/limits.h \
+  /usr/include/fcntl.h /usr/include/sys/fcntl.h /usr/include/unistd.h \
+  /usr/include/sys/unistd.h /usr/include/signal.h \
+  /usr/include/sys/signal.h /usr/include/machine/signal.h \
+  /usr/include/ppc/signal.h /usr/include/stdlib.h /usr/include/alloca.h \
+  /usr/include/string.h
+
+../../lib/model_params.h:
+
+/usr/include/stdio.h:
+
+/usr/include/sys/types.h:
+
+/usr/include/sys/appleapiopts.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/machine/types.h:
+
+/usr/include/ppc/types.h:
+
+/usr/include/machine/ansi.h:
+
+/usr/include/ppc/ansi.h:
+
+/usr/include/machine/endian.h:
+
+/usr/include/ppc/endian.h:
+
+/usr/include/sys/stat.h:
+
+/usr/include/sys/time.h:
+
+/usr/include/time.h:
+
+/usr/include/gcc/darwin/3.3/machine/limits.h:
+
+/usr/include/ppc/limits.h:
+
+/usr/include/fcntl.h:
+
+/usr/include/sys/fcntl.h:
+
+/usr/include/unistd.h:
+
+/usr/include/sys/unistd.h:
+
+/usr/include/signal.h:
+
+/usr/include/sys/signal.h:
+
+/usr/include/machine/signal.h:
+
+/usr/include/ppc/signal.h:
+
+/usr/include/stdlib.h:
+
+/usr/include/alloca.h:
+
+/usr/include/string.h:

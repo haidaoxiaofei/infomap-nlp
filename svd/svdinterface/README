@@ -1,0 +1,68 @@
+                           ================
+			     SVDINTERFACE
+                           ================
+
+The las2.c file is part of the SVDPACKC linear algebra library from
+the University of Tennessee.  (Please see las2.c for a copyright
+notice.)  The other contents of this directory are a wrapper around las2.c.
+
+Input:
+------
+
+The input matrix is expected in _column-major_ format, written to two
+files: coll.XXXX and ind.XXXX (where 'XXXX' is the file extension, by
+convention the number of pre-SVD dimensions, which becomes one
+argument to 'svdinterface' below.)
+
+	coll.XXXX
+
+	contains entries of the form
+
+	r0 n0
+	r1 n1
+	...
+	ri nj
+
+	where rx is a row number and nx is the co-occurrence count in
+	the cell [x,y] for the current column y.  Only pairs <rx, nx>
+	with nx > 0 are written in coll.XXXX, the others are skipped.
+	These columns of entries are written out for all columns y.
+
+	indx.XXXX
+
+	contains a list of numbers
+
+	m0
+	m1
+	...
+	mj
+
+	for all columns y, 0 <= y <= j.  For all y, my is the number
+	of non-zero entries in columns y.  Thus indx.XXXX has as many
+	lines as there are columns in the pre-SVD matrix, and all the
+	numbers in indx.XXXX add up to the number of lines in
+	coll.XXXX.
+
+
+Note: The program will assume that everything is in the current
+directory and write its output to the current directory as well!
+
+
+Usage: 
+------
+
+Invoke svdinterface in the directory in which the collocation file
+resides (cf. the remark at the end of the previous section.)
+
+Output:
+-------
+
+The program writes four files:
+
+    left	   left vectors
+    rght	   right vectors
+    sing	   singular values
+    diag	   some information
+
+The file containing the "shortened" vectors we go on to use in
+calculating similarity is "left.XXXX".

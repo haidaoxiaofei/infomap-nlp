@@ -1,0 +1,34 @@
+
+Infomap NLP Software
+--------------------
+
+Please see the file "INSTALL" for installation instructions; this
+package uses GNU Autoconf and Automake, so the general idea is
+"./configure; make; make install".
+
+To get started, it is recommended that you read either the Infomap
+User's Manual or the Infomap Tutorial; both are provided in HTML
+format.  Both are distributed in the doc/html/ subdirectory of this
+directory; they will be installed to $prefix/share/doc/infomap-nlp/
+(by default, /usr/local/share/doc/infomap-nlp/).  Please begin with
+the index.html file.
+
+This distribution comes with an extensive set of man pages; these are
+intended to be as complete and detailed as possible and will probably
+serve much better as references than as a tutorial.
+
+The software in this package is Copyright (c) Stanford University,
+except for the SVDPACKC linear algebra library, which is Copyright (c)
+University of Tennessee.  Please see the file COPYING in this
+directory for the terms under which you may use the software.
+
+This software was created by the Infomap Project in the Computational
+Semantics Lab at the Center for the Study of Language and Information
+(CSLI) at Stanford University.  The SVDPACKC linear algebra library
+was created by the University of Tennessee and is available from netlib.org.
+
+Please direct questions and comments regarding the software to
+infomap-nlp-users@lists.sourceforge.net.
+
+Thank you; we hope you will find the software useful.
+

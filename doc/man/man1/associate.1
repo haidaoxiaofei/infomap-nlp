@@ -1,0 +1,319 @@
+.\" Process this file with 
+.\"    groff -man -Tascii associate.1
+
+.TH ASSOCIATE 1 "FEBRUARY 2004" "Infomap Project" "Infomap User Manual"
+
+.SH NAME 
+.TP 
+associate \- find words or documents most similar to a query, \
+or print query vector
+
+.SH SYNOPSIS
+.B associate 
+.RB [ -w " | " -d " | " -q ] 
+.RB [ -i 
+.IR type_of_input \ (w "|" d)] 
+(
+.RB [ -t ]
+|
+.RB [ -m 
+.IR model_dir ]
+)
+.RB [ -c 
+.IR model_tag ]
+.RB [ -n 
+.IR num_neighbors ] 
+.RB [ -f 
+.IR vector_output_file ] 
+.RI < pos_term_1 > 
+.RI " [" pos_term_2 " ... " pos_term_n ] 
+.RB [ NOT 
+.IR neg_term_1 \ ... \ neg_term_n ] 
+
+.B associate
+.RI -c \ <model_tag>
+<query_terms>
+
+.SH DESCRIPTION
+.B associate 
+finds either the words
+.RB ( -w ) 
+or the documents 
+.RB ( -d ) 
+best matching the query
+composed of the query terms 
+.IR pos_term_1 \ ... \ pos_term_n 
+and, optionally, the negative query terms 
+.IR neg_term_1 \ ... \ neg_term_n ;
+or simply prints the query vector
+.RB ( -q )
+for the given query.
+
+The query is either composed of words
+.RB (-i \ w)
+or of documents
+.RB (-i \ d)
+in which case
+.IR pos_term_1 \ ... \ pos_term_n
+and
+.IR neg_term_1 \ ... \ neg_term_n
+are document names (if corpus consists of many files) or document ids (if corpus is a single file) respectively.
+
+.B associate 
+prints the matching words or ID's for the matching documents one per
+line on its standard output, in descending order of similarity to the
+query; a similarity score is printed for each word or document.  If
+the
+.B -f
+option is used, the vectors for the matching words or documents are
+also written to the specified file.
+
+.B associate
+can be run without any query terms to display a command usage
+synopsis and the model data directory that is being used.
+
+.SH OPTIONS
+.TP
+.BI -c \ corpus_tag
+Use the model specified by model tag
+.IR model_tag ; 
+this tag is the name of the model data directory containing the
+various files that make up a model.
+For details on how this directory is located, see the section
+.B FINDING THE MODEL
+below.
+
+If 
+.B -c
+is not specified, then 
+.B -m 
+must be specified in order to perform a search.
+In this case, the argument to
+.B -m
+will be interpreted as the model data directory, rather than 
+its parent.
+
+.TP
+.B -d
+Retrieve documents, rather than words.
+
+.TP 
+.BI -f \ vector_output_file
+Write the vectors of the words or documents retrieved to
+.IR vector_output_file .
+
+.TP
+.BI -i \ query_type
+.IR query_type 
+is either 
+.B w 
+(for words) or
+.B d 
+(for documents).
+
+.TP 
+.BI -m \ model_dir
+Use the model stored in 
+
+.I model_dir 
+for this search; when this option
+is used the model tag given as an argument to the
+.B -c 
+option must name a subdirectory of 
+.IR model_dir .  
+If
+.B -m
+is specified and
+.B -c 
+is not specified, then the argument to
+.B -m 
+must be the actual model data directory that contains
+the model files.
+
+If this option is specified the 
+.B INFOMAP_MODEL_PATH
+environment variable and the
+.B -t
+option are ignored.
+
+.TP 
+.BI -n \ num_neighbors
+Print the 
+.I num_neighbors 
+documents or words most similar to the query.
+
+.TP
+.B -q
+Rather than performing retrieval, simply compute and print the query
+vector for the specified query.  The 
+.BR -f " and " -n
+options are irrelevant if
+.B -q
+is specified, and will be ignored if given.
+
+.TP 
+.BI -t 
+Look for the model data directory in the directory
+specified by the
+.B INFOMAP_WORKING_DIR
+environment variable; ignore the
+.B INFOMAP_MODEL_PATH
+environment variable.  Note that this option will
+be ignored if the
+.B -m
+option is also specified.
+
+.TP
+.B -w
+Retrieve words, rather than documents.  The default.
+
+.\" .SH EXAMPLES
+
+.SH FINDING THE MODEL
+An Infomap NLP model, typically created by
+.BR infomap-install (1),
+consists of a number of files (see the 
+.B FILES
+section below).  All of these files must be in a single
+directory, the 
+.IR "model data directory".
+
+Since all of 
+.BR associate 's
+operations are performed with respect to a model, it must
+somehow locate the appropriate model data directory.
+
+The model data directory's name is the
+.IR "model tag",
+and is given as an argument to the
+.B -c 
+option.
+The normal way of finding this directory is to search the directories
+given in the
+.B INFOMAP_MODEL_PATH
+environment variable, a colon-separated list of directories.  The
+first directory in this list containing a subdirectory whose name is the
+model tag will be chosen, and that subdirectory's contents will be
+used as the model.
+
+This normal mode of operation can be overridden in two ways.
+First, if the 
+.B -m 
+option is given, its argument must be a directory, and the
+model data directory must be a subdirectory of that directory.
+If no 
+.B -m
+option is given, but the
+.B -t 
+option is given, then the model data directory must be a subdirectory
+of the directory given as the value of the
+.B INFOMAP_WORKING_DIR
+environment variable.  The
+.B -t
+option makes it convenient to run 
+.B associate
+using a model that has just been built with
+.BR infomap-build (1)
+but has not yet been installed with 
+.BR infomap-install (1).
+The
+.B -m 
+option is provided to handle exceptional cases.
+
+Finally, if 
+.B -m
+is specified and
+.B -c
+is not, then the argument to
+.B -m
+is treated as the actual model data directory; that is, the
+files making up the model are sought in this directory.
+
+.SH FILES
+
+.I model_params.bin
+.RS
+Reads this file to obtain parameters for the model being used for search.
+See 
+.BR prepare_corpus (1).
+.RE
+
+.I wordvec.bin
+.RS
+File containing the word vectors in a binary format.  See
+.BR encode_wordvec (1).
+.RE
+
+.I word2offset.{dir,pag}
+.RS
+DBM database allowing the lookup of the vector corresponding
+to a given word.  See
+.BR encode_wordvec (1).
+.RE
+
+.I offset2word.{dir,pag}
+.RS
+DBM database allowing the lookup of the word corresponding to
+a given word vector.  See
+.BR encode_wordvec (1).
+.RE
+
+.I artvec.bin
+.RS
+File containing the document vectors in a binary format.  See
+.BR count_artvec (1).
+.RE
+
+.I art2offset.{dir,pag}
+.RS
+DBM database allowing the lookup of the vector corresponding to
+a given document.  See
+.BR count_artvec (1).
+.RE
+
+.I offset2art.{dir,pag}
+.RS
+DBM database allowing the lookup of the document corresponding to
+a given document vector.  See
+.BR count_artvec (1).
+.RE
+
+.SH ENVIRONMENT VARIABLES
+.B INFOMAP_MODEL_PATH
+.RS
+Path to search for Infomap model directories.  Will be
+ignored if 
+.B -m
+or 
+.B -t
+is specified.
+.RE
+
+.B INFOMAP_WORKING_DIR
+.RS
+Directory in which to find Infomap model directory, if the
+.B -t
+command-line option is given.
+.RE
+
+.SH SEE ALSO
+.BR infomap-build (1), \ infomap-install (1), \ prepare_corpus (1), \ count_wordvec (1), \ svdinterface (1), \
+\ encode_wordvec (1), \ count_artvec (1), \ write_text_params (1).
+
+.SH DIAGNOSTICS
+Returns 0 to indicate success; 1 to indicate error.
+
+.SH BUGS
+Please report bugs to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+.SH CREDITS
+The Infomap NLP software was written by Stefan Kaufmann, Hinrich
+Schuetze, Dominic Widdows, Beate Dorow, and Scott Cederberg.  The
+Infomap algorithm was originally developed by Hinrich Schuetze.
+
+.SH AUTHOR
+This manual page was written by Scott Cederberg.  Please direct
+inquiries and bug reports to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+

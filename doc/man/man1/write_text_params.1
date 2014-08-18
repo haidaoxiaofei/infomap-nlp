@@ -1,0 +1,106 @@
+.\" Process this file with 
+.\"    groff -man -Tascii write_text_params.1
+
+.TH WRITE_TEXT_PARAMS 1 "FEBRUARY 2004" "Infomap Project" "Infomap NLP Manual"
+
+.SH NAME
+
+.TP
+write_text_params \- convert binary model params to text
+
+.SH SYNOPSIS
+.B write_text_params
+.BR -mdir " <model_data_dir> " 
+
+.SH DESCRIPTION
+.B write_text_params
+reads in the three binary files expressing various model and corpus
+parameters, and writes out the information they contain in a textual
+format.  Keeping these data around as text is a Good Idea because it
+allows easy inspection of the parameters and could aid portability to
+other machines, since the binary files are not portable across
+architectures.
+
+.SH OPTIONS
+
+.TP
+.BI -mdir \ <model_data_dir>
+The directory from which we read input and to which we write output.
+
+.SH INPUT FILES
+These files are read from the model data directory, specified
+as an argument to the 
+.B -mdir 
+option.
+
+.I model_params.bin
+.RS
+Basic parameters describing the model.  Parameters that will need to 
+be read by search-side programs (such as
+.BR associate (1))
+are kept here.  Other parameters are kept in 
+.I model_info.bin
+to keep this file small and efficient to load.  This design reflects
+probable premature optimization.  See
+.BR prepare_corpus (1)).
+.RE
+
+.I model_info.bin
+.RS
+Additional parameters describing the model.
+See 
+.BR prepare_corpus (1)).
+.RE
+
+.I corpus_format.bin
+.RS
+Parameters describing the format of the corpus and how it has 
+been processed.  For instance, the tags that mark the beginning
+and end of documents, and XML/SGML character entities that have
+been stripped.  See
+.BR prepare_corpus (1)).
+.RE
+
+.SH OUTPUT FILES
+All of these files are produced in the model data directory, specified
+as an argument to the
+.B -mdir
+option.
+
+.I model_params.txt
+.RS
+Textual version of
+.IR model_params.bin .
+.RE
+
+.I model_info.txt
+.RS
+Textual version of
+.IR model_info.bin .
+.RE
+
+.I corpus_format.txt
+.RS
+Textual version of
+.IR corpus_format.bin .
+.RE
+
+.SH SEE ALSO
+.BR prepare_corpus (1), \ count_wordvec (1), \ svdinterface (1), \ encode_wordvec (1), \ count_artvec (1), \ associate(1).
+
+.SH DIAGNOSTICS
+Returns 0 to indicate success, number of errors in case of error.
+
+.SH BUGS
+Probably this program should not exist, as we would most likely be
+better off using textual formats throughout and doing away with the
+binary.  This shouldn't cause much of a performance hit, but would 
+require some text-parsing code.
+Please report bugs to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+.SH AUTHOR
+This program and manual page were written by Scott Cederberg.  Please direct
+inquiries and bug reports to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+

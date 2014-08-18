@@ -1,0 +1,131 @@
+.\" Process this file with 
+.\"    groff -man -Tascii count_artvec.1.
+
+.TH COUNT_ARTVEC 1 "February 2004" "Infomap Project" "Infomap NLP Manual"
+
+.SH NAME
+.TP 
+count_artvec \- compute article vectors from word vectors and \
+tokenized corpus
+
+.SH SYNOPSIS
+.B count_artvec
+.BR -m " <model_data_dir> "
+
+.SH DESCRIPTION
+.B count_artvec
+
+
+.SH OPTIONS
+.TP
+.BI -m \ <model_data_dir>
+The directory from which input files are read and to which output
+files are written.
+
+.\" .SH EXAMPLES
+
+.SH INPUT FILES
+These files are read from the model data directory, specified as
+an argument to the
+.B -mdir
+option.
+
+.I numDocs
+.RS
+A file containing the number of documents in the input corpus.
+See
+.BR prepare_corpus (1).
+.RE
+
+.I dic
+.RS
+The "dictionary" file listing the word types (terms) from the input
+corpus, along with their term and document frequencies.
+See 
+.BR prepare_corpus (1).
+.RE
+
+.I wordlist
+.RS
+A tokenized form of the corpus, with document boundaries marked.
+See
+.BR prepare_corpus (1).
+.RE
+
+.I wordvec.bin
+.RS
+A binary representation of the word vectors.  See 
+.BR encode_wordvec (1).
+.RE
+
+.I model_params.bin
+.RS
+Reads this file to obtain parameters for the model being built.
+See 
+.BR prepare_corpus (1).
+.RE
+
+.SH OUTPUT FILES
+These files are written to the model data directory, specified as
+an argument to the
+.B -mdir
+option.
+
+.I artvec.bin
+.RS
+A binary representation of the article vectors.  Analogous
+to 
+.IR wordvec.bin .
+.RE
+
+.I art2offset.{dir,pag}
+.RS
+These two files make up a DBM database.  Each key in this database
+is a document (article) ID; the corresponding value is the offset into 
+.I artvec.bin
+at which the vector for the document with that ID can be found.
+In a single-file corpus, a document ID is the offset into the corpus
+file at which the document begins.  In a multiple-file corpus, a
+document ID is an key into the 
+.I number2name
+DBM (see 
+.BR prepare_corpus (1))
+that can be used to retrieve the document's filename.
+The 
+.I art2offset
+ DBM and
+.I artvec.bin
+can be used to retrieve a document's vector given its ID.
+.RE
+
+.I offset2art.{dir,pag}
+.RS
+These two files make up a DBM database.  Each key in this database
+is an offset into 
+.I artvec.bin
+at which a document vector begins.  The corresponding value is the
+document ID of the document having that vector.  This DBM and
+.I artvec.bin
+can be used to retrieve a document given its vector.
+.RE
+
+.SH SEE ALSO
+.BR prepare_corpus (1), \ count_wordvec (1), \ svdinterface (1), \
+\ encode_wordvec (1), \ write_text_params (1).
+
+.SH DIAGNOSTICS
+Returns 0 to indicate success; 1 to indicate error.
+
+.SH BUGS
+Please report bugs to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+.SH CREDITS
+The Infomap NLP software was written by Stefan Kaufmann, Hinrich
+Schuetze, Dominic Widdows, Beate Dorow, and Scott Cederberg.  The
+Infomap algorithm was originally developed by Hinrich Schuetze.
+
+.SH AUTHOR
+This manual page was written by Scott Cederberg.  Please direct
+inquiries and bug reports to 
+.BR infomap-nlp-users@lists.sourceforge.net .

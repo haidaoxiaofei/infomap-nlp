@@ -1,0 +1,168 @@
+.\" Process this file with 
+.\"    groff -man -Tascii infomap-install.1
+
+.TH INFOMAP-INSTALL 1 "February 2004" "Infomap Project" "Infomap NLP Manual"
+
+.SH NAME
+.TP 
+infomap-install \- install an Infomap WordSpace model
+
+.SH SYNOPSIS
+.B infomap-install
+.RB [ -c \ install_control_file]
+.RB [ -w \ working_dir] 
+.RB [ -i \ install_dir]
+<working_model_tag> [installed_model_tag]
+
+.SH DESCRIPTION
+.B infomap-install
+installs an Infomap WordSpace model.  It does this by copying
+some or all of the model files (generally created by 
+.BR infomap-build (1))
+from the
+.I working model directory
+to the
+.IR "installed model directory" .
+
+The name of the working model directory is the working model tag, which
+is a required argument.  The name of the installed model directory is
+the installed model tag if it is given, otherwise it is the working
+model tag.
+
+The working model directory may be in one of three places:  the
+directory given as an argument to the
+.B -w 
+option, if specified; otherwise, the directory named by the
+.B INFOMAP_WORKING_DIR
+environment variable; otherwise, the current directory.
+
+The installed model directory likewise may be created as a subdirectory
+of one of three different directories:  the directory given as
+an argument to the
+.B -i
+option, if specified; otherwise, the directory named by the
+.B INFOMAP_MODEL_DIR
+environment variable; otherwise, 
+.IR @pkgdatadir@/models .
+
+Note that installing to 
+.I @pkgdatadir@/models 
+will probably require root access.
+
+Which files are copied as part of the installation is determined by
+an 
+.IR "install control file" .
+The default install control file is
+.IR @pkgdatadir@/install.control ;
+an alternate file can be specified as an argument to the
+.B -c
+option.  See
+.BR infomap-install.control (5)
+for documentation of the format of install control files.
+
+
+.SH OPTIONS
+.TP
+.BI -c \ install_control_file
+The install control file determines which files will be copied
+from the working data directory to the installed data directory
+during installation.  It can also cause 
+.B infomap-install
+to print warning messages if certain files are missing from
+the working data directory.  If no
+.B -c
+option is given, the default install control file is
+.IR @pkgdatadir@/install.control .
+See 
+.BR infomap-install.control (5)
+for details on the format of install control files.
+
+.TP
+.BI -i \ install_dir
+The directory in which the installed data directory will be created.
+If 
+.B -i
+is not specified, the value of the 
+.B INFOMAP_MODEL_DIR
+environment variable is used; if neither
+.BR -i \ nor \ INFOMAP_MODEL_DIR
+is specified, then
+.I @pkgdatadir@/models
+is used by default.
+
+.TP
+.BI -w \ working_dir
+The directory in which the working data directory must be located.  If
+.B -w 
+is not specified, the value of the
+.B INFOMAP_WORKING_DIR
+environment variable is used; if neither
+.BR -w \ nor \ INFOMAP_WORKING_DIR
+is specified, then the current directory is used by default.
+
+.\" .SH EXAMPLES
+
+.SH FILES
+.I @pkgdatadir@/install.control
+.RS
+Default install control file.  Alternate
+can be specified with 
+.B -c
+option.  See
+.BR infomap-install.control (5).
+.RE
+
+.I @pkgdatadir@/models
+.RS
+Default directory in which to created installed data
+directory.  Alternate can be specified with 
+.B -i
+option, or using the
+.B INFOMAP_MODEL_DIR
+environment variable.
+
+.SH ENVIRONMENT VARIABLES
+.B INFOMAP_WORKING_DIR
+.RS
+Directory in which to seek working data directory.
+Can be overridden by the
+.B -w 
+option.  Default is the current directory.
+.RE
+
+.B INFOMAP_MODEL_DIR
+.RS
+Directory in which to create the installed data directory.
+Can be overridden by the
+.B -i
+option.  Default is
+.IR @pkgdatadir@/models .
+.RE
+
+.SH SEE ALSO
+.BR infomap-install.control (5), \ infomap-build (1), \ associate (1).
+
+
+.SH DIAGNOSTICS
+Returns 0 to indicate success; 1 or nonzero return value from child
+process to indicate error.
+
+.SH BUGS
+Not yet as robust as one might hope, especially with
+respect to malformed install.control files.
+Please report bugs to 
+.BR infomap-nlp-users@lists.sourceforge.net .
+
+
+.SH CREDITS
+The 
+.B infomap-install
+script was written by Scott Cederberg. 
+The Infomap NLP software was written by Stefan Kaufmann, Hinrich
+Schuetze, Dominic Widdows, Beate Dorow, and Scott Cederberg.  The
+Infomap algorithm was originally developed by Hinrich Schuetze.
+
+.SH AUTHOR
+This manual page was written by Scott Cederberg.  Please direct
+inquiries and bug reports to 
+.BR infomap-nlp-users@lists.sourceforge.net .

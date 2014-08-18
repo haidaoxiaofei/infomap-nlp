@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+<title>Infomap Troubleshooting Guide</title>
+<head>
+
+
+<body>
+<h2>Infomap Troubleshooting Guide</h2>
+<p>Ah, the dreaded &quot;troubleshooting&quot; section.  Please allow
+us to encourage you to keep your wits about you and your hopes up, as
+you have a good chance of resolving the problem.</p>
+<ul><li><a href="#software">Troubleshooting a Failed Software
+Build</a></li>
+<li><a href="#model">Troubleshooting a Failed Model
+Build</a></li>
+<li><a href="#search">Troubleshooting a Failed Search</a></li>
+<li><a href="#contact">Contacting Us</a></li>
+</ul>
+
+<h3><a name="software"/>Troubleshooting a Failed Software
+Build</h3>
+<p>The first thing to check is that you have downloaded the version of
+the Infomap software appropriate to your operating system, if there is
+one.  Please check that before proceeding.</p>
+
+<p>If a version of the software is not available for your operating
+system (and your system is a version of Unix or Linux), you should
+still be able to make it work.  In this case, we recommend starting
+with the Solaris version of the source and following the instructions
+below.</p>
+
+<p>The Infomap software should work on most versions of Unix (or
+&quot;Unix-like&quot; systems such as Linux) with slight
+modifications, although it has not been widely tested or ported.  The
+adaptation most likely to be necessary is the replacement of
+references to one header file (in <tt>#include</tt> lines in the
+source code) with references to another header file.  This can fix
+problems where the code calls a library function that is available on
+your system, but is defined in a different header file from that
+included by the code.  (NOTE: XXX XXX Also necessary to change
+&quot;-l&quot; lines in relevant Makefiles to locate the libraries
+containing these functions.  We should describe how to do that.)</p>
+
+<p>It is also
+possible that the code makes calls to library functions not available
+in the libraries on your system.  In this case, it is likely that your
+system provides an equivalent or near-equivalent function under a
+different name; if so you can replace calls to the missing functions
+with calls to the equivalent functions available on your system.  You
+should be able to find manpages for the missing functions on Google if
+you need to understand their functionality.  (We also recommend the
+excellent tutorial/reference work <i>Advanced Programming in the Unix
+Environment</i> by W. Richard Stevens as a place to look up unknown
+library functions.)</p>
+
+<p>Finally, if our software uses a function for which there is no
+equivalent on your system, it can only be made to work by installing
+the necessary function or by writing code to replace its
+functionality.  In this case we may be able to help you find the
+appropriate library from a freely downloadable source.</p>
+
+
+<h3><a name="model"/>Troubleshooting a Failed Model Build</h3>
+<p></p>
+
+<h3><a name="search"/>Troubleshooting a Failed Search</h3>
+<p></p>
+
+<h3><a name="contact"/>Contacting Us</h3>
+<p>Whether or not you are able to solve your problems on your own (and
+regardless of how hard you have tried), we would greatly appreciate
+hearing from you.  We would like both to help you solve your problems,
+if we can, and to make the software more robuste and portable for
+future users.  We particularly exhort you to contact us if you
+encouter problems that seem not to fall into the categories described
+in this troubleshooting guide, since they may reflect issues we are
+not yet aware of.</p>
+
+
+</body>
+
+</html>
